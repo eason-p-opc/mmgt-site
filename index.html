@@ -344,6 +344,7 @@ body{transition:background var(--dur-2),color var(--dur-2)}
 .calc .fl{font-size:11px;color:var(--ink3);margin-bottom:6px}
 .calc input{width:100%;border:none;border-radius:8px;padding:8px 10px;background:var(--card);color:var(--ink);font-size:13px}
 .calc .calcOut{margin-top:8px;font-size:12.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.rtag{display:inline-block;margin-left:4px;font-size:9px;padding:0 4px;border-radius:4px;background:var(--fill);color:var(--ink3);vertical-align:1px}
 /* ---- 断点切换 ---- */
 @media (max-width:767px){
   .wrap{padding:0 12px 36px}
@@ -575,6 +576,13 @@ function scoreHtml(sc) {
   var cls = sc >= 7 ? 'hi' : '';
   return '<span class="sbar ' + cls + '"><i style="width:' + Math.max(4, sc * 10) + '%"></i></span>' + sc.toFixed(1);
 }
+function shortRateType(t) {
+  if (!t) return '';
+  if (/七日/.test(t)) return '七日';
+  if (/近一年/.test(t)) return '近1年';
+  if (/成立以来/.test(t)) return '成立以来';
+  return t.length > 6 ? t.slice(0, 5) + '…' : t;
+}
 function shortBank(b) { return b === '招商银行' ? '招行' : b === '中国银行' ? '中行' : b; }
 function riskShort(t) { var m = String(t || '').match(/Rs*[1-5]/); return m ? m[0] : (t || '—'); }
 function nameCell(r) {
@@ -650,9 +658,9 @@ function renderList() {
         + wstarHtml(r.code, 'c-wstar') + '</div>'
         + '<div class="c-name" title="' + esc(r.n) + '">' + esc(r.n) + '</div>'
         + '<div class="c-hero">'
-        + '<div class="c-y"><b class="' + ycls(r.y1) + '">'
-        + (typeof r.y1 === 'number' ? fmt(r.y1, 2) + '<i>%</i>' : '—') + '</b><em>近1月年化'
-        + (typeof r.y1 !== 'number' ? ' · 新发暂无' : '') + '</em></div>'
+        + '<div class="c-y"><b class="' + (r.rateDisp != null ? 'yo' : ycls(r.y1)) + '">'
+        + (r.rateDisp != null ? fmt(r.rateDisp, 2) + '<i>%</i>' : (typeof r.y1 === 'number' ? fmt(r.y1, 2) + '<i>%</i>' : '—')) + '</b><em>'
+        + (r.rateDisp != null ? esc(r.rateType || '披露口径') : '近1月年化' + (typeof r.y1 !== 'number' ? ' · 新发暂无' : '')) + '</em></div>'
         + '<div class="c-t"><b>' + esc(r.tt || '—') + '</b><em>' + esc(r.mb || '—') + '</em></div>'
         + '</div>'
         + '<div class="c-meta"><span>' + meta + '</span>'
@@ -673,8 +681,8 @@ function renderList() {
       return '<tr data-code="' + esc(r.code) + '"' + (r.hl ? ' class="hl"' : '') + '>'
         + (S.cat === 'watch' ? '<td class="cmpc"><input type="checkbox" class="cmpck" data-cmp="' + esc(r.code) + '"' + (CMP.indexOf(r.code) >= 0 ? ' checked' : '') + '></td>' : '')
         + '<td>' + buy + '</td>'
-        + '<td>' + badge(r.c) + '</td><td title="' + esc(r.b) + '">' + esc(shortBank(r.b)) + '</td><td class="tname" title="' + esc(r.n) + '"><div class="clamp">' + nameCell(r) + '</div></td><td class="tcode"><a class="iname" href="#p=' + encodeURIComponent(r.code) + '" data-p="' + esc(r.code) + '">' + esc(r.code) + '</a></td>'
-        + '<td class="num ' + ycls(r.y1) + '">' + fmt(r.y1, 2) + '</td>'
+        + '<td>' + badge(r.c) + '</td><td title="' + esc(r.b) + '">' + esc(shortBank(r.b)) + '</td><td class="tname" title="' + esc(r.n) + '"><div class="clamp">' + nameCell(r) + '</div></td><td class="tcode"><a class="iname" href="#p=' + encodeURIComponent(r.code) + '" data-p="' + esc(r.code) + '">' + esc(r.cd) + '</a></td>'
+        + '<td class="num ' + ycls(r.y1) + '">' + (r.rateDisp != null ? '<span title="邮储披露口径：' + esc(r.rateType || '') + '">' + fmt(r.rateDisp, 2) + '</span><span class="rtag">' + esc(shortRateType(r.rateType)) + '</span>' : fmt(r.y1, 2)) + '</td>'
         + '<td class="num">' + fmt(r.y3, 2) + '</td><td class="num">' + fmt(r.y7, 2) + '</td>'
         + '<td class="num">' + fmt(r.w1, 2) + '</td><td class="num">' + scoreHtml(r.sc) + '</td>'
         + '<td>' + esc(r.tt || '—') + '</td><td class="' + rkcls(r.rl) + '" title="' + esc(r.rl || '') + '">' + esc(riskShort(r.rl)) + '</td>'
@@ -825,7 +833,7 @@ function compareHtml() {
     ['综合评分', function (r) { return scoreHtml(r.sc); }, 'max', 'sc'],
     ['封闭期', function (r) { return esc(r.tt || '—'); }, 'min', 'td'],
   ];
-  var head = '<tr><th></th>' + rows.map(function (r) { return '<th>' + esc(shortBank(r.b)) + '<br><span class="tcode">' + esc(r.code) + '</span></th>'; }).join('') + '</tr>';
+  var head = '<tr><th></th>' + rows.map(function (r) { return '<th>' + esc(shortBank(r.b)) + '<br><span class="tcode">' + esc(r.cd) + '</span></th>'; }).join('') + '</tr>';
   var body = '<tr><td class="k">产品</td>' + rows.map(function (r) { return '<td><b class="cmpname">' + esc(r.n) + '</b></td>'; }).join('') + '</tr>'
     + '<tr><td class="k">类别</td>' + rows.map(function (r) { return '<td>' + badge(r.c) + '</td>'; }).join('') + '</tr>'
     + attrs.map(function (a) { return '<tr><td class="k">' + a[0] + '</td>' + rows.map(function (r) { return cellHtml(r, a); }).join('') + '</tr>'; }).join('')
@@ -870,12 +878,13 @@ function detailHtml(r) {
         return '<tr><td>' + esc(x[0]) + '</td><td class="num ' + ycls(x[1]) + '">' + fmt(x[1], 2) + '%</td><td class="num">' + (x[2] == null ? '—' : fmt(x[2], 2) + '%') + '</td></tr>';
       }).join('') + '</tbody></table>'
     : '';
+  var dispVal = r.rateDisp != null;
   return '<div class="d-badges">' + badge(r.c) + '<span class="chip">' + esc(r.b) + '</span>'
     + '<span class="chip ' + rkcls(r.rl) + '">' + esc(r.rl || '—') + '</span>'
     + (r.hl ? '<span class="chip" style="color:var(--red);border-color:var(--red)">★ 标红</span>' : '') + '</div>'
     + '<h2 class="d-name">' + esc(r.n) + '</h2>'
-    + '<div class="d-big"><div class="lab">近1月年化收益率</div>'
-    + '<div class="val ' + ycls(r.y1) + '">' + (typeof r.y1 === 'number' ? fmt(r.y1, 2) + '<i>%</i>' : '—') + '</div>'
+    + '<div class="d-big"><div class="lab">' + (dispVal ? esc(r.rateType || '披露收益率') : '近1月年化收益率') + '</div>'
+    + '<div class="val ' + (dispVal ? 'yo' : ycls(r.y1)) + '">' + (dispVal ? fmt(r.rateDisp, 2) + '<i>%</i>' : (typeof r.y1 === 'number' ? fmt(r.y1, 2) + '<i>%</i>' : '—')) + '</div>'
     + '<div class="bench">' + (r.bench ? '业绩比较基准：' + esc(r.bench) + '<br>' : '')
     + '万元收益 ' + fmt(r.w1, 4) + ' 元/万元/日 · 近3月 ' + fmt(r.y3, 2) + '% · 近7天 ' + fmt(r.y7, 2) + '%</div></div>'
     + calcHtml(r) + icsHtml(r) + holdHtml(r)
@@ -1040,9 +1049,9 @@ function showDetailPage(r) {
     + '<div class="d-badges" style="margin-top:14px">' + badge(r.c) + '<span class="chip">' + esc(r.b) + '</span>'
     + '<span class="chip ' + rkcls(r.rl) + '">' + esc(r.rl || '—') + '</span>'
     + (r.hl ? '<span class="chip" style="color:var(--red);border-color:var(--red)">★ 标红</span>' : '') + '</div>'
-    + '<div class="pv-name">' + esc(r.n) + '</div><div class="pv-code">' + esc(r.code) + ' · 数据日期 ' + esc(r.d) + '</div>'
-    + '<div class="d-big"><div class="lab">近1月年化收益率</div>'
-    + '<div class="val ' + ycls(r.y1) + '">' + (typeof r.y1 === 'number' ? fmt(r.y1, 2) + '<i>%</i>' : '—') + '</div>'
+    + '<div class="pv-name">' + esc(r.n) + '</div><div class="pv-code">' + esc(r.cd) + ' · 数据日期 ' + esc(r.d) + '</div>'
+    + '<div class="d-big"><div class="lab">' + (r.rateDisp != null ? esc(r.rateType || '披露收益率') : '近1月年化收益率') + '</div>'
+    + '<div class="val ' + (r.rateDisp != null ? 'yo' : ycls(r.y1)) + '">' + (r.rateDisp != null ? fmt(r.rateDisp, 2) + '<i>%</i>' : (typeof r.y1 === 'number' ? fmt(r.y1, 2) + '<i>%</i>' : '—')) + '</div>'
     + '<div class="bench">' + (r.bench ? '业绩比较基准：' + esc(r.bench) + '<br>' : '')
     + '万元收益 ' + fmt(r.w1, 4) + ' 元/万元/日 · 近3月 ' + fmt(r.y3, 2) + '% · 近7天 ' + fmt(r.y7, 2) + '%</div></div>'
     + calcHtml(r) + icsHtml(r) + holdHtml(r)
