@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#F5F5F7" id="metaTheme">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<title>银行理财日报 · 招行 + 中行</title>
+<title>银行理财日报</title>
 <meta name="description" content="银行理财产品每日对比清单：覆盖招商银行、中国银行等渠道，每日两次采集、同日去重，新发 / 补货 / 在售一目了然，附收益、期限、风险与购买入口。">
 <meta property="og:title" content="银行理财日报">
 <meta property="og:description" content="每日两次采集的银行理财产品对比清单：新发 / 补货 / 在售，含近1月年化、封闭期、风险等级与购买入口。">
@@ -334,10 +334,22 @@ body{transition:background var(--dur-2),color var(--dur-2)}
 #cmpBar .ghost{background:var(--fill);border:none;color:var(--ink2);border-radius:999px;padding:7px 14px;cursor:pointer}
 .cmpc{width:34px;text-align:center}
 .cmpck-w{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;color:var(--ink3)}
+.cmpt{table-layout:fixed;width:100%}   /* V 矩阵：等宽列防长名称顶出抽屉 */
+.cmpt th:first-child,.cmpt td.k{width:64px}
 .cmpt th,.cmpt td.k{font-size:11px;color:var(--ink3);font-weight:600;white-space:nowrap}
 .cmpt td{font-size:12px}
 .cmpt .best{background:var(--tonal-blue);font-weight:600;border-radius:6px}
-.cmpt .cmpname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:220px;font-size:12px}
+.cmpt .cmpname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all;white-space:normal;font-size:12px;line-height:1.4}
+/* ---- 对比 W 行排（手机端）：粘性产品名列 + 指标横向滚动 ---- */
+.wwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.wtab{border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap}
+.wtab th{font-size:11px;color:var(--ink3);font-weight:600;text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
+.wtab td{padding:9px 10px;border-bottom:1px solid var(--rowline);text-align:right;vertical-align:middle}
+.wtab th.wname,.wtab td.wname{position:sticky;left:0;z-index:2;background:var(--card);text-align:left;min-width:150px;max-width:170px;box-shadow:6px 0 8px -6px rgba(0,0,0,.12)}
+.wtab td.wname b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;line-height:1.35;white-space:normal;word-break:break-all}
+.wsub{display:flex;gap:5px;align-items:center;margin-top:5px;font-size:10.5px;color:var(--ink3)}
+.wtab td.best{background:var(--tonal-blue);font-weight:600}
+.wtab .num{font-variant-numeric:tabular-nums}
 .minibtn{display:inline-block;margin:6px 8px 0 0;border:1px solid var(--line2);background:var(--fill);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:12px}
 .minibtn:hover{border-color:var(--accent2);color:var(--accent)}
 .calc{background:var(--bg);border-radius:12px;padding:10px 14px;margin-top:10px}
@@ -362,7 +374,8 @@ body{transition:background var(--dur-2),color var(--dur-2)}
   .chipsRow::-webkit-scrollbar{display:none}
   .chipsRow .fchip,.chipsRow .fclear,.chipsRow #cnt{flex:0 0 auto;max-width:none}   /* 禁止压缩：保持长条形，整行左右滑动 */
   .c-meta .btn{padding:10px 18px;font-size:13px}
-  #cmpBar{bottom:calc(20px + env(safe-area-inset-bottom));max-width:calc(100% - 24px)}
+  #cmpBar{bottom:calc(20px + env(safe-area-inset-bottom));width:min(340px,calc(100% - 24px));max-width:calc(100% - 24px)}   /* 与搜索框/Dock 同宽 340px，窄屏按屏宽自适应 */
+  #cmpBar .primary{flex:1;min-width:0}   /* 对比钮吃掉剩余宽度 */
   body.mdock #cmpBar{bottom:calc(70px + env(safe-area-inset-bottom))}
   .chipsRow #cnt{margin-left:auto;flex:0 0 auto}
   #toTop{bottom:calc(20px + env(safe-area-inset-bottom))}
@@ -813,6 +826,39 @@ function compareHtml() {
   var rows = CMP.map(function (c) { return findRow(c); }).filter(Boolean);
   if (rows.length < 2) return '<div class="d-sec" style="margin-top:0">产品对比</div><div class="empty">在「关注」列表勾选 2~4 只产品后对比</div>';
   var num = function (r, k) { return typeof r[k] === 'number' && isFinite(r[k]) ? r[k] : null; };
+  /* ---- 手机（≤767px）W 行排：一行一产品全指标，粘性产品名列 + 横向滚动翻看指标 ---- */
+  if (window.matchMedia('(max-width:767px)').matches) {
+    var cols = [
+      ['近1月%', function (r) { return '<span class="' + ycls(r.y1) + ' num">' + fmt(r.y1, 2) + '</span>'; }, 'max', 'y1'],
+      ['近3月%', function (r) { return '<span class="num">' + fmt(r.y3, 2) + '</span>'; }, 'max', 'y3'],
+      ['近7天%', function (r) { return '<span class="num">' + fmt(r.y7, 2) + '</span>'; }, 'max', 'y7'],
+      ['万元收益', function (r) { return '<span class="num">' + fmt(r.w1, 4) + '</span>'; }, 'max', 'w1'],
+      ['评分', function (r) { return scoreHtml(r.sc); }, 'max', 'sc'],
+      ['封闭期', function (r) { return esc(r.tt || '—'); }, 'min', 'td'],
+      ['风险', function (r) { return '<span class="' + rkcls(r.rl) + '">' + esc(riskShort(r.rl) || '—') + '</span>'; }, null, null],
+      ['起购', function (r) { return '<span class="num">' + esc(r.mb || '—') + '</span>'; }, null, null],
+      ['申购开始', function (r) { return '<span class="num">' + esc(r.bs ? r.bs.slice(5) : '—') + '</span>'; }, null, null],
+      ['购买', function (r) { return r.lw ? '<a class="btn" href="' + esc(r.lw) + '" target="_blank" rel="noopener">购买</a>' : '—'; }, null, null],
+    ];
+    var bests = {};
+    cols.forEach(function (a, i) {
+      if (!a[2]) return;
+      var pool = rows.map(function (x) { return num(x, a[3]); }).filter(function (x) { return x !== null; });
+      if (pool.length > 1 && pool.some(function (x) { return x !== pool[0]; }))
+        bests[i] = a[2] === 'max' ? Math.max.apply(null, pool) : Math.min.apply(null, pool);
+    });
+    var whead = '<tr><th class="wname">产品</th>' + cols.map(function (a) { return '<th>' + a[0] + '</th>'; }).join('') + '</tr>';
+    var wbody = rows.map(function (r) {
+      return '<tr><td class="wname"><b title="' + esc(r.n) + '">' + esc(r.n) + '</b><span class="wsub">' + badge(r.c) + esc(shortBank(r.b)) + ' <span class="tcode">' + esc(r.cd) + '</span></span></td>'
+        + cols.map(function (a, i) {
+            var v = a[3] ? num(r, a[3]) : null;
+            return '<td class="' + (bests[i] != null && v === bests[i] ? 'best' : '') + '">' + a[1](r) + '</td>';
+          }).join('') + '</tr>';
+    }).join('');
+    return '<div class="d-sec" style="margin-top:0">产品对比（' + rows.length + ' 只）</div>'
+      + '<div class="wwrap"><table class="wtab"><thead>' + whead + '</thead><tbody>' + wbody + '</tbody></table></div>';
+  }
+  /* ---- PC V 矩阵：产品为列（table-layout:fixed，名称两行换行防顶出） ---- */
   function cellHtml(r, a) {
     var v = a[3] ? num(r, a[3]) : null;
     var cls = 'num';
@@ -1131,12 +1177,14 @@ function bind() {
     }
     var iname = e.target.closest('a.iname');
     if (iname && !e.metaKey && !e.ctrlKey) { e.preventDefault(); gotoDetail(iname.dataset.p); return; }
+    if (e.target.closest('.cmpc')) return;   // E2：勾选框区域只切换选中，不跳详情
     if (e.target.closest('a,button')) return;
     var tr = e.target.closest('tr[data-code]');
     if (tr) openDetail(tr.dataset.code);
   });
   $('cards').addEventListener('keydown', function (e) {   // 卡片键盘可达（a11y）
     if (e.key !== 'Enter' && e.key !== ' ') return;
+    if (e.target.tagName === 'INPUT') return;             // 勾选框空格=切换勾选，不跳详情
     var card = e.target.closest('.card[data-code]');
     if (card) { e.preventDefault(); gotoDetail(card.dataset.code); }
   });
@@ -1144,6 +1192,7 @@ function bind() {
     if (e.target.id === 'resetF') { resetFilters(); return; }
     var ws = e.target.closest('[data-w]');
     if (ws) { toggleWatch(ws.dataset.w); return; }
+    if (e.target.closest('.cmpck-w')) return;             // E2：「比」勾选只切换选中，不跳详情
     if (e.target.closest('a,button')) return;
     var card = e.target.closest('.card[data-code]');
     if (card) gotoDetail(card.dataset.code);

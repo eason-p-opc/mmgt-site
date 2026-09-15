@@ -1,1 +1,292 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0071E3"/><rect x="28" y="28" width="456" height="456" rx="76" fill="none" stroke="#F5F5F7" stroke-width="6" opacity=".5"/><text x="256" y="240" font-family="-apple-system,'PingFang SC',sans-serif" font-size="150" font-weight="700" fill="#F6F3EC" text-anchor="middle">银行</text><text x="256" y="396" font-family="-apple-system,'PingFang SC',sans-serif" font-size="150" font-weight="700" fill="#F6F3EC" text-anchor="middle">日报</text><circle cx="398" cy="114" r="18" fill="#E30000"/></svg>
+<svg width="512" height="512" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="银行理财产品选品图标">
+  <defs>
+    <!-- 背景底色 -->
+    <linearGradient id="bgGrad" x1="24" y1="10" x2="232" y2="246" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C2447"/>
+      <stop offset="0.55" stop-color="#101732"/>
+      <stop offset="1" stop-color="#06080F"/>
+    </linearGradient>
+
+    <!-- 外圈虹彩描边 -->
+    <linearGradient id="edgeGrad" x1="40" y1="12" x2="216" y2="244" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A9E4FF" stop-opacity="0.70"/>
+      <stop offset="0.45" stop-color="#7C9CFF" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#C9A6FF" stop-opacity="0.55"/>
+    </linearGradient>
+
+    <!-- 内部光晕 -->
+    <radialGradient id="haloCyan" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#5FE3FF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#5FE3FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="haloViolet" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#9B7BFF" stop-opacity="0.50"/>
+      <stop offset="1" stop-color="#9B7BFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 玻璃卡片 -->
+    <linearGradient id="glassFill" x1="60" y1="66" x2="196" y2="182" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.14"/>
+    </linearGradient>
+    <linearGradient id="glassStroke" x1="58" y1="68" x2="200" y2="182" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="0.75" stop-color="#8FD9FF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#C9A6FF" stop-opacity="0.75"/>
+    </linearGradient>
+
+    <!-- 收益曲线 -->
+    <linearGradient id="lineGrad" x1="76" y1="152" x2="176" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5FE3FF"/>
+      <stop offset="0.5" stop-color="#8AB0FF"/>
+      <stop offset="1" stop-color="#CFA8FF"/>
+    </linearGradient>
+    <linearGradient id="areaGrad" x1="128" y1="96" x2="128" y2="160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7CC6FF" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#7CC6FF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 选中徽章 -->
+    <linearGradient id="badgeGrad" x1="150" y1="140" x2="206" y2="198" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6FE6FF" stop-opacity="0.95"/>
+      <stop offset="0.5" stop-color="#7E9CFF" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#B98CFF" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="badgeGlass" cx="0.32" cy="0.26" r="0.85">
+      <stop stop-color="#FFFFFF" stop-opacity="0.62"/>
+      <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="badgeHalo" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#7FD6FF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#7FD6FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 扫光渐变 -->
+    <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 滤镜 -->
+    <filter id="blurBig" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="blurMid" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="blurSoft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <filter id="glowSoft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowTiny" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="1.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- 裁剪 -->
+    <clipPath id="bgClip"><rect x="10" y="10" width="236" height="236" rx="70"/></clipPath>
+    <clipPath id="cardClip"><rect x="54" y="64" width="148" height="116" rx="34"/></clipPath>
+  </defs>
+
+  <!-- ===== 1. 玻璃底座 ===== -->
+  <rect x="10" y="10" width="236" height="236" rx="70" fill="url(#bgGrad)"/>
+
+  <g clip-path="url(#bgClip)">
+    <ellipse cx="88" cy="64" rx="96" ry="80" fill="url(#haloCyan)" filter="url(#blurBig)">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="6s" repeatCount="indefinite" begin="0s"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 8 -6; 0 0" dur="9s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="188" cy="202" rx="86" ry="72" fill="url(#haloViolet)" filter="url(#blurBig)">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="7s" repeatCount="indefinite" begin="-3s"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; -10 8; 0 0" dur="11s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>
+
+  <rect x="10" y="10" width="236" height="236" rx="70" fill="none"
+        stroke="url(#edgeGrad)" stroke-width="1.4">
+    <animate attributeName="stroke-opacity" values="0.7;1;0.7" dur="5s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- ===== 2. 液态玻璃卡片 ===== -->
+  <rect x="54" y="64" width="148" height="116" rx="34"
+        fill="url(#glassFill)" stroke="url(#glassStroke)" stroke-width="1.5"/>
+
+  <g clip-path="url(#cardClip)">
+    <!-- 斜向柔光 -->
+    <ellipse cx="88" cy="84" rx="52" ry="24" fill="#FFFFFF" opacity="0.15"
+             transform="rotate(-32 88 84)" filter="url(#blurMid)"/>
+    <!-- 边缘高光弧 -->
+    <path d="M72 100 Q96 74 134 70" stroke="#FFFFFF" stroke-opacity="0.55"
+          stroke-width="1.6" stroke-linecap="round" fill="none" filter="url(#glowTiny)"/>
+
+    <!-- 斜向扫光 -->
+    <g transform="skewX(-20)">
+      <rect x="-120" y="20" width="22" height="220" fill="url(#sheenGrad)">
+        <animate attributeName="x" values="-120;320" dur="4.5s" repeatCount="indefinite" begin="0s"/>
+      </rect>
+    </g>
+    <!-- 第二道细扫光，错峰出现 -->
+    <g transform="skewX(-20)">
+      <rect x="-120" y="20" width="6" height="220" fill="#FFFFFF" opacity="0.35" filter="url(#blurSoft)">
+        <animate attributeName="x" values="-120;320" dur="4.5s" repeatCount="indefinite" begin="-0.35s"/>
+      </rect>
+    </g>
+  </g>
+
+  <!-- ===== 3. 收益曲线 ===== -->
+  <path d="M78 152 L106 126 L130 142 L176 98 L176 158 L78 158 Z"
+        fill="url(#areaGrad)">
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
+  </path>
+
+  <path id="curvePath" d="M78 152 L106 126 L130 142 L176 98"
+        stroke="url(#lineGrad)" stroke-width="4"
+        stroke-linecap="round" stroke-linejoin="round"
+        filter="url(#glowSoft)">
+    <animate attributeName="stroke-width" values="4;4.6;4" dur="2.5s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- 曲线节点 -->
+  <circle cx="78" cy="152" r="2.8" fill="#0C1226" stroke="#5FE3FF" stroke-opacity="0.7" stroke-width="1.4"/>
+  <circle cx="106" cy="126" r="2.8" fill="#0C1226" stroke="#8AB0FF" stroke-opacity="0.7" stroke-width="1.4"/>
+  <circle cx="130" cy="142" r="2.8" fill="#0C1226" stroke="#8AB0FF" stroke-opacity="0.7" stroke-width="1.4"/>
+
+  <!-- 终点脉冲 -->
+  <circle cx="176" cy="98" r="7.5" fill="none" stroke="#CFA8FF" stroke-opacity="0.35" stroke-width="1.2">
+    <animate attributeName="r" values="5;13;5" dur="2.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;0;0.7" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="176" cy="98" r="3.6" fill="#FFFFFF" filter="url(#glowSoft)">
+    <animate attributeName="r" values="3;4.8;3" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- 沿曲线移动的主光点 -->
+  <circle r="3.2" fill="#FFFFFF" filter="url(#glowSoft)">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="0s"
+                   path="M78 152 L106 126 L130 142 L176 98"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <!-- 拖尾光点 -->
+  <circle r="2.2" fill="#A8E9FF" filter="url(#glowTiny)">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="-0.18s"
+                   path="M78 152 L106 126 L130 142 L176 98"/>
+    <animate attributeName="opacity" values="0;0.9;0.9;0" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="1.4" fill="#CFA8FF" filter="url(#glowTiny)">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="-0.36s"
+                   path="M78 152 L106 126 L130 142 L176 98"/>
+    <animate attributeName="opacity" values="0;0.7;0.7;0" dur="3s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- ===== 4. 选中徽章 ===== -->
+  <circle cx="178" cy="168" r="36" fill="url(#badgeHalo)" filter="url(#blurMid)">
+    <animate attributeName="r" values="32;40;32" dur="2.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="178" cy="168" r="29" fill="url(#badgeGrad)"/>
+  <circle cx="178" cy="168" r="29" fill="url(#badgeGlass)"/>
+  <circle cx="178" cy="168" r="29" fill="none" stroke="#FFFFFF" stroke-opacity="0.65" stroke-width="1.2"/>
+
+  <!-- 徽章脉冲环 -->
+  <circle cx="178" cy="168" r="29" fill="none" stroke="#7FD6FF" stroke-width="1.2">
+    <animate attributeName="r" values="29;48" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.85;0" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="178" cy="168" r="29" fill="none" stroke="#C9A6FF" stroke-width="1.2">
+    <animate attributeName="r" values="29;48" dur="2.4s" repeatCount="indefinite" begin="-1.2s"/>
+    <animate attributeName="opacity" values="0.85;0" dur="2.4s" repeatCount="indefinite" begin="-1.2s"/>
+  </circle>
+
+  <!-- 对勾 -->
+  <path d="M166 168.5 L175 177.5 L191 158.5"
+        stroke="#FFFFFF" stroke-width="3.6" stroke-linecap="round"
+        stroke-linejoin="round" filter="url(#glowTiny)">
+    <animate attributeName="stroke-opacity" values="0.75;1;0.75" dur="2s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- 徽章周围旋转粒子 -->
+  <g>
+    <animateTransform attributeName="transform" type="rotate" from="0 178 168" to="360 178 168" dur="8s" repeatCount="indefinite"/>
+    <circle cx="178" cy="134" r="2.4" fill="#A8E9FF" filter="url(#glowTiny)"/>
+    <circle cx="178" cy="202" r="1.8" fill="#C9A6FF"/>
+    <circle cx="210" cy="168" r="1.5" fill="#8FD9FF" opacity="0.7"/>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="rotate" from="360 178 168" to="0 178 168" dur="12s" repeatCount="indefinite"/>
+    <circle cx="146" cy="168" r="1.8" fill="#8FD9FF"/>
+    <circle cx="178" cy="206" r="2.2" fill="#B98CFF" filter="url(#glowTiny)"/>
+    <circle cx="146" cy="168" r="1.4" fill="#FFFFFF" opacity="0.6"/>
+  </g>
+
+  <!-- ===== 5. 光影粒子 ===== -->
+  <g>
+    <!-- 四角星芒 -->
+    <g transform="translate(210 60)">
+      <path d="M0 -7 Q0.6 -0.6 7 0 Q0.6 0.6 0 7 Q-0.6 0.6 -7 0 Q-0.6 -0.6 0 -7 Z"
+            fill="#A8E9FF" filter="url(#glowTiny)">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="2.6s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="scale" values="0.85;1.15;0.85" dur="2.6s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <g transform="translate(38 152)">
+      <path d="M0 -6 Q0.5 -0.5 6 0 Q0.5 0.5 0 6 Q-0.5 0.5 -6 0 Q-0.5 -0.5 0 -6 Z"
+            fill="#C9A6FF" filter="url(#glowTiny)">
+        <animate attributeName="opacity" values="0.25;0.9;0.25" dur="3.2s" repeatCount="indefinite" begin="-0.8s"/>
+        <animateTransform attributeName="transform" type="scale" values="0.8;1.2;0.8" dur="3.2s" repeatCount="indefinite" begin="-0.8s"/>
+      </path>
+    </g>
+    <g transform="translate(126 40)">
+      <path d="M0 -6 Q0.5 -0.5 6 0 Q0.5 0.5 0 6 Q-0.5 0.5 -6 0 Q-0.5 -0.5 0 -6 Z"
+            fill="#FFFFFF" filter="url(#glowTiny)">
+        <animate attributeName="opacity" values="0.3;0.95;0.3" dur="2.2s" repeatCount="indefinite" begin="-1.5s"/>
+        <animateTransform attributeName="transform" type="scale" values="0.9;1.1;0.9" dur="2.2s" repeatCount="indefinite" begin="-1.5s"/>
+      </path>
+    </g>
+
+    <!-- 漂浮光点 -->
+    <circle cx="42" cy="58" r="2.4" fill="#9FE8FF" filter="url(#glowTiny)">
+      <animate attributeName="opacity" values="0.15;1;0.15" dur="2.8s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="58;46;58" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="222" cy="126" r="1.8" fill="#C9A6FF" filter="url(#glowTiny)">
+      <animate attributeName="opacity" values="0.2;0.9;0.2" dur="3.4s" repeatCount="indefinite" begin="-1s"/>
+      <animate attributeName="cy" values="126;116;126" dur="7s" repeatCount="indefinite" begin="-1s"/>
+    </circle>
+    <circle cx="58" cy="210" r="2.2" fill="#8FD9FF" filter="url(#glowTiny)">
+      <animate attributeName="opacity" values="0.2;0.95;0.2" dur="3s" repeatCount="indefinite" begin="-2s"/>
+      <animate attributeName="cy" values="210;198;210" dur="5.5s" repeatCount="indefinite" begin="-2s"/>
+    </circle>
+    <circle cx="202" cy="216" r="1.6" fill="#C9A6FF">
+      <animate attributeName="opacity" values="0.15;0.75;0.15" dur="3.6s" repeatCount="indefinite" begin="-1.8s"/>
+    </circle>
+    <circle cx="30" cy="108" r="1.5" fill="#9FE8FF">
+      <animate attributeName="opacity" values="0.1;0.7;0.1" dur="4s" repeatCount="indefinite" begin="-0.5s"/>
+    </circle>
+    <circle cx="232" cy="180" r="1.6" fill="#9FE8FF">
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3.8s" repeatCount="indefinite" begin="-2.5s"/>
+      <animate attributeName="cx" values="232;224;232" dur="9s" repeatCount="indefinite" begin="-2.5s"/>
+    </circle>
+  </g>
+
+  <!-- 斜向流星微粒 -->
+  <g opacity="0.85">
+    <circle r="1.6" fill="#EAF7FF" filter="url(#glowTiny)">
+      <animateMotion dur="4s" repeatCount="indefinite" path="M20 30 L70 70"/>
+      <animate attributeName="opacity" values="0;0.9;0" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.2" fill="#B98CFF" filter="url(#glowTiny)">
+      <animateMotion dur="5s" repeatCount="indefinite" begin="-2s" path="M210 20 L160 70"/>
+      <animate attributeName="opacity" values="0;0.8;0" dur="5s" repeatCount="indefinite" begin="-2s"/>
+    </circle>
+    <circle r="1.4" fill="#8FD9FF" filter="url(#glowTiny)">
+      <animateMotion dur="4.5s" repeatCount="indefinite" begin="-3s" path="M20 220 L64 176"/>
+      <animate attributeName="opacity" values="0;0.85;0" dur="4.5s" repeatCount="indefinite" begin="-3s"/>
+    </circle>
+  </g>
+</svg>
