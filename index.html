@@ -12,6 +12,8 @@
 <meta property="og:description" content="每日两次采集的银行理财产品对比清单：新发 / 补货 / 在售，含近1月年化、封闭期、风险等级与购买入口。">
 <meta property="og:type" content="website">
 <script>try{var tp=localStorage.getItem('mmgt-theme')||'auto';var dk=tp==='dark'||(tp==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=dk?'dark':'light';}catch(e){}</script>
+<!-- 壳构建版本（P1-10）：与 data.js 的 DATA.v 比对，不一致说明 SW 给到了跨版本的壳/数据组合 -->
+<script>window.__MMGT_BUILD__='2026-09-19-757116';</script>
 <style>
 /* ===== 简约质感风 v2.0（docs/07）demo 样式层：Apple 基调 + Google M3 语义 + Amazon 清单密度 ===== */
 :root{
@@ -26,6 +28,7 @@
   --fill:rgba(0,0,0,.05); --fill-hover:rgba(0,0,0,.08);
   --tonal-blue:rgba(0,113,227,.10); --tonal-orange:rgba(194,94,0,.12);
   --tonal-red:rgba(227,0,0,.10); --tonal-neutral:rgba(0,0,0,.05);
+  --tonal-green:rgba(29,138,78,.12);   /* 2026-09-20 对比推荐：此前缺失，被 recbar/rec-col 引用 */
   --onbg:#1D1D1F; --onfg:#FFFFFF;
   /* 玻璃 */
   --glass-bg:rgba(255,255,255,.55); --glass-hi:rgba(255,255,255,.8);
@@ -52,6 +55,7 @@
   --fill:rgba(255,255,255,.08); --fill-hover:rgba(255,255,255,.13);
   --tonal-blue:rgba(10,132,255,.18); --tonal-orange:rgba(255,159,10,.16);
   --tonal-red:rgba(255,69,58,.18); --tonal-neutral:rgba(255,255,255,.08);
+  --tonal-green:rgba(48,209,88,.18);   /* 2026-09-20 对比推荐（深色主题） */
   --onbg:#F5F5F7; --onfg:#1C1C1E;
   --glass-bg:rgba(28,28,30,.52); --glass-hi:rgba(255,255,255,.12); --glass-rim:rgba(255,255,255,.10);
   --glass-in:rgba(255,255,255,.06);
@@ -137,6 +141,25 @@ body.search-open .msearchrow{display:block}
 .b-new{background:var(--tonal-blue);color:var(--accent)} .b-restock{background:var(--tonal-orange);color:var(--orange)} .b-onsale{background:var(--tonal-neutral);color:var(--ink2)}
 .chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;border:none;background:var(--fill);color:var(--ink2);white-space:nowrap}
 .tagr{display:inline-block;font-size:10.5px;padding:1px 8px;border-radius:999px;border:none;background:var(--tonal-red);color:var(--red);white-space:nowrap;line-height:16px}
+/* ---- 稳健度标签 s0~s5（2026-09-19 待办 C-③）：●实心/○空心，5 档 ---- */
+.stabd{display:inline-block;font-size:11px;line-height:16px;letter-spacing:.5px;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.stabd.s5{color:var(--green)} .stabd.s4{color:var(--green)} .stabd.s3{color:var(--orange)}
+.stabd.s2{color:var(--orange)} .stabd.s1{color:var(--ink3)} .stabd.s0{color:var(--ink3)}
+/* ---- 对比推荐（2026-09-20 docs/15）：横幅 + 列/行高亮 + 红色购买钮 ---- */
+/* ⚠ 2026-09-20 修复：窄屏（390px）下「推荐购买：」被逐字断行成竖排。
+   根因：flex 子项默认 min-width:auto 不收缩，中文遂逐字换行。
+   修法：文字块用能正常换行的行内流（不用 flex 排文字），并给 em 允许换行。 */
+.recbar{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.6;padding:10px 12px;border-radius:11px;margin-bottom:10px}
+.recbar .rec-ico{flex:0 0 auto;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px}
+.recbar>span:not(.rec-ico){flex:1 1 auto;min-width:0;word-break:break-word}
+.recbar em{font-style:normal;color:var(--ink3);margin-left:6px}
+.rec-yes{background:var(--tonal-green);color:var(--green)} .rec-yes .rec-ico{background:var(--green);color:#fff}
+.rec-no{background:var(--fill);color:var(--ink2)} .rec-no .rec-ico{background:var(--ink3);color:#fff}
+.rec-tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:999px;background:var(--green);color:#fff;vertical-align:1px}
+.rec-col{background:var(--tonal-green)!important}
+.recrow>td{background:var(--tonal-green)}
+.btn.rec-btn{background:var(--red)!important;color:#fff!important;font-weight:700}
+.btn.rec-btn:hover{filter:brightness(1.08)}
 .rk{font-weight:600} .rk1{color:var(--green)} .rk2{color:#2E7D46} .rk3{color:var(--orange)} .rk4{color:#B45309} .rk5{color:var(--red)}
 .star{color:var(--red);margin-right:2px}
 .dtag{font-size:10px;color:var(--ink3);background:var(--fill);border-radius:6px;padding:1px 5px;margin-left:5px;white-space:nowrap}
@@ -309,7 +332,8 @@ body{transition:background var(--dur-2),color var(--dur-2)}
   .sticky,.pv-top{background:var(--bg)}
   #listbox thead th{background:var(--card)}
   #overlay{background:rgba(0,0,0,.55)}
-  #toTop{background:var(--card)}
+  /* 2026-09-16：浮层降级补全 —— 无 backdrop-filter 时必须给不透明底，否则文字糊在内容上 */
+  #toTop,#cmpBar,body.mdock .mtools,body.mdock .msearchrow input{background:var(--card)}
   #drawer{background:var(--card)}
   .tabs button,.ibtn{background:var(--fill)}
 }
@@ -317,7 +341,7 @@ body{transition:background var(--dur-2),color var(--dur-2)}
   .sticky,.pv-top{background:var(--bg)}
   #listbox thead th{background:var(--card)}
   #overlay{background:rgba(0,0,0,.55)}
-  #toTop{background:var(--card)}
+  #toTop,#cmpBar,body.mdock .mtools,body.mdock .msearchrow input{background:var(--card)}
   #drawer{background:var(--card)}
   .tabs button,.ibtn{background:var(--fill)}
 }
@@ -329,7 +353,14 @@ body{transition:background var(--dur-2),color var(--dur-2)}
 .wstar:hover,.wstar.on{color:var(--orange)}
 .card .c-wstar{margin-left:auto;font-size:16px}
 .tagu{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:999px;background:var(--tonal-orange);color:var(--orange);white-space:nowrap}
-#cmpBar{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:34;display:flex;gap:10px;align-items:center;padding:8px 10px 8px 16px;border-radius:999px;background:var(--glass-sheet);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 1px var(--glass-rim),var(--shadow-2);font-size:13px}
+/* 对比栏（2026-09-16）：玻璃参数统一到与 #toTop / 底部 Dock 同源的一组令牌 ——
+   原用 --glass-sheet + 硬编码 blur(24px) saturate(1.8)，与回顶钮的 --glass-bg + blur(20px)
+   不一致，三个浮层叠在一起时质感有差。现全部走 --glass-bg / --glass-blur / --glass-sat。 */
+#cmpBar{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:34;display:flex;gap:10px;align-items:center;padding:8px 10px 8px 16px;border-radius:999px;
+  background:var(--glass-bg);
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 1px var(--glass-rim),var(--shadow-2);font-size:13px}
 #cmpBar .primary{background:var(--accent);border:none;color:#fff;font-weight:600;border-radius:999px;padding:7px 18px;cursor:pointer}
 #cmpBar .ghost{background:var(--fill);border:none;color:var(--ink2);border-radius:999px;padding:7px 14px;cursor:pointer}
 .cmpc{width:34px;text-align:center}
@@ -340,6 +371,9 @@ body{transition:background var(--dur-2),color var(--dur-2)}
 .cmpt td{font-size:12px}
 .cmpt .best{background:var(--tonal-blue);font-weight:600;border-radius:6px}
 .cmpt .cmpname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all;white-space:normal;font-size:12px;line-height:1.4}
+/* C11 同类：PC 矩阵表头的产品代码同样会溢出（th 的 white-space:nowrap 盖过 <br>）——
+   给 tcode 块级化 + 省略号，否则长代码会压到右邻列的「推荐」标签上。 */
+.cmpt th .tcode{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 /* ---- 对比 W 行排（手机端）：粘性产品名列 + 指标横向滚动 ---- */
 .wwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
 .wtab{border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap}
@@ -347,7 +381,15 @@ body{transition:background var(--dur-2),color var(--dur-2)}
 .wtab td{padding:9px 10px;border-bottom:1px solid var(--rowline);text-align:right;vertical-align:middle}
 .wtab th.wname,.wtab td.wname{position:sticky;left:0;z-index:2;background:var(--card);text-align:left;min-width:150px;max-width:170px;box-shadow:6px 0 8px -6px rgba(0,0,0,.12)}
 .wtab td.wname b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;line-height:1.35;white-space:normal;word-break:break-all}
-.wsub{display:flex;gap:5px;align-items:center;margin-top:5px;font-size:10.5px;color:var(--ink3)}
+/* ⚠ 2026-09-20 修复：长产品代码（如 CYQWFZQZSLD14DA）撑破产品列。
+   根因三条叠加：① 「max-width」对 table-cell 的固有尺寸不生效（CSS 规范），
+   故 td.wname 的 max-width:170px 挡不住内容；② .wsub 是 flex，子项默认 min-width:auto 不收缩；
+   ③ .wtab 整体 white-space:nowrap 阻止换行。
+   修法：给 wname 加 width:170px（table-cell 用 width 才生效）+ .wsub 子项允许收缩并省略。 */
+.wtab th.wname,.wtab td.wname{width:170px}
+.wsub{display:flex;gap:5px;align-items:center;margin-top:5px;font-size:10.5px;color:var(--ink3);overflow:hidden}
+.wsub>*{min-width:0;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wsub .badge{flex:0 0 auto}
 .wtab td.best{background:var(--tonal-blue);font-weight:600}
 .wtab .num{font-variant-numeric:tabular-nums}
 .minibtn{display:inline-block;margin:6px 8px 0 0;border:1px solid var(--line2);background:var(--fill);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:12px}
@@ -357,6 +399,25 @@ body{transition:background var(--dur-2),color var(--dur-2)}
 .calc input{width:100%;border:none;border-radius:8px;padding:8px 10px;background:var(--card);color:var(--ink);font-size:13px}
 .calc .calcOut{margin-top:8px;font-size:12.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
 .rtag{display:inline-block;margin-left:4px;font-size:9px;padding:0 4px;border-radius:4px;background:var(--fill);color:var(--ink3);vertical-align:1px}
+/* ---- 中间断点：渐进隐藏次要列（2026-09-20 用户拍板 A 方案）----
+   PC 表格 17 列自然宽 1240px，而 .wrap 上限 1280px 且无横向滚动容器
+   → 768~1259px 整页横向滚动，左侧「产品名称/代码」被推出屏幕（iPad 横屏正落此区间）。
+   不用 overflow-x:auto 包裹的原因：**滚动容器会成为表头 position:sticky 的参照系**，
+   实测表头会随页面滚走（top 48px → -572px），吸顶失效（docs/11 C13）。
+   故改为按可用宽度逐列隐藏：不横滚、表头仍吸顶；隐藏列的字段在**详情抽屉与手机卡片**
+   均可见（抽屉完整展示全部字段），故为「降级」而非「丢失」。 */
+/* 隐藏顺序按「选择价值 ÷ 占宽」排：先砍信息密度最低的 权益%/申购开始，
+   最后才动 银行/风险 —— 这两列是多银行横向对比的立足点，尽量留到最后。
+   注：起购(55px) 比 风险(42px) 占宽更多而信息量更低，故先隐藏起购、保风险。 */
+@media (min-width:768px) and (max-width:1023px){
+  th,td{padding-left:5px;padding-right:5px}   /* 17 列 × 每列省 10px，比隐藏整列更划算 */
+}
+@media (min-width:768px) and (max-width:1339px){ .c-mb{display:none} }    /* 起购 */
+@media (min-width:768px) and (max-width:1269px){ .c-y7,.c-w1{display:none} } /* 近7天% / 万元收益 */
+@media (min-width:768px) and (max-width:1199px){ .c-yw{display:none} }    /* 累计收益 */
+@media (min-width:768px) and (max-width:1159px){ .c-cat{display:none} }   /* 类别 */
+@media (min-width:768px) and (max-width:1023px){ .c-eq,.c-bs{display:none} } /* 权益% / 申购开始 */
+
 /* ---- 断点切换 ---- */
 @media (max-width:767px){
   .wrap{padding:0 12px 36px}
@@ -379,21 +440,31 @@ body{transition:background var(--dur-2),color var(--dur-2)}
   body.mdock #cmpBar{bottom:calc(70px + env(safe-area-inset-bottom))}
   .chipsRow #cnt{margin-left:auto;flex:0 0 auto}
   #toTop{bottom:calc(20px + env(safe-area-inset-bottom))}
-  /* ---- 底部 Dock：下滑时工具钮收进液态玻璃胶囊（与回顶钮同高） ---- */
+  /* ---- 底部 Dock：下滑时工具钮收进液态玻璃胶囊 ----
+     2026-09-16 用户拍板两项调整：
+       ① **关注页（S.cat==='watch'）不显示 Dock** —— body.nowatchdock 由 renderAll 维护；
+       ② 圆角加大到 20px（原 14px），毛玻璃与 #toTop 完全对齐（同一组 --glass-* 令牌 +
+          同款 inset 高光/描边 + --shadow-2），保证两个浮层视觉一致。 */
   .mtools{transition:transform .38s var(--ease-sheet)}
-  body.mdock .mtools{position:fixed;left:12px;right:auto;width:min(340px,calc(100% - 84px));height:44px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:36;margin:0;padding:5px;gap:4px;
-    background:var(--glass-sheet);
-    -webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);
-    border-radius:14px;
+  body.mdock .mtools{position:fixed;left:12px;right:auto;width:min(340px,calc(100% - 84px));height:48px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:36;margin:0;padding:5px;gap:4px;
+    background:var(--glass-bg);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+    border-radius:20px;
     box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 1px var(--glass-rim),var(--shadow-2)}
   body.mdock .mtools .mbtn{background:var(--glass-in);box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 1px var(--glass-rim);
-    height:34px;flex:1 1 0;flex-direction:column;gap:1px;border-radius:10px;font-size:9.5px;padding:0 8px}
+    height:38px;flex:1 1 0;flex-direction:column;gap:1px;border-radius:14px;font-size:9.5px;padding:0 8px}
   body.mdock .mtools .mbtn .mi svg{width:14px;height:14px}
-  /* Dock 态点搜索：搜索框固定浮在 Dock 上方，不回跳顶部（宽度与 Dock 一致） */
-  body.mdock.search-open .msearchrow{display:block;position:fixed;left:12px;right:auto;width:min(340px,calc(100% - 84px));bottom:calc(66px + env(safe-area-inset-bottom));z-index:37;margin:0;padding:0}
-  body.mdock.search-open .msearchrow input{background:var(--glass-sheet);
-    -webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);
-    box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 1px var(--glass-rim),var(--shadow-2);border-radius:16px;padding:11px 14px}
+  /* 关注页：不吸底（工具行留在原位），回顶钮也不上抬 */
+  body.nowatchdock.mdock .mtools{position:static;height:auto;width:auto;background:transparent;box-shadow:none;
+    -webkit-backdrop-filter:none;backdrop-filter:none;padding:0;gap:8px;border-radius:0;transform:none !important}
+  body.nowatchdock.mdock .mtools .mbtn{background:var(--card);box-shadow:none;height:40px;flex:1;flex-direction:row;gap:5px;border-radius:12px;font-size:12px;padding:0}
+  body.nowatchdock.mdock #cmpBar{bottom:calc(20px + env(safe-area-inset-bottom))}
+  /* Dock 态点搜索：搜索框固定浮在 Dock 上方，不回跳顶部（宽度与 Dock 一致，玻璃同款） */
+  body.mdock:not(.nowatchdock).search-open .msearchrow{display:block;position:fixed;left:12px;right:auto;width:min(340px,calc(100% - 84px));bottom:calc(70px + env(safe-area-inset-bottom));z-index:37;margin:0;padding:0}
+  body.mdock:not(.nowatchdock).search-open .msearchrow input{background:var(--glass-bg);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+    box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 1px var(--glass-rim),var(--shadow-2);border-radius:20px;padding:11px 14px}
   #toTop{bottom:calc(14px + env(safe-area-inset-bottom))}
 }
 </style>
@@ -423,6 +494,7 @@ body{transition:background var(--dur-2),color var(--dur-2)}
     <label>封闭期 <select id="termSel"></select></label>
     <label>近1月年化 ≥ <input type="number" id="miny" step="0.1">%</label>
     <label><input type="checkbox" id="hlon" class="switch"> 只看标红</label>
+    <label title="稳定性与持续性均达标：各期收益平稳、长期为正"><input type="checkbox" id="stableon" class="switch"> 只看稳健</label>
     <button class="ibtn" id="mxBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg>矩阵</button>
     <button class="ibtn" id="resetBtn">重置</button>
   </div>
@@ -458,9 +530,78 @@ body{transition:background var(--dur-2),color var(--dur-2)}
 <button id="toTop" aria-label="回到顶部">↑</button>
 <noscript><div style="padding:30px;text-align:center">本页需要启用 JavaScript。</div></noscript>
 
-<script src="data.js"></script>
+<!-- 2026-09-16 性能修复：data.js 原为同步 <script>，687KB 在慢网下阻塞首屏约 3s
+     （Lighthouse「Render-blocking requests — Est savings of 3,020 ms」）。
+     现改为 defer（不阻塞解析）。⚠ 注意：**defer 对内联脚本无效**（规范明确忽略），
+     所以下方内联主脚本不能靠 defer 排队 —— 它的启动逻辑已包进 DOMContentLoaded，
+     而 defer 脚本保证在 DOMContentLoaded 之前执行完，故 DATA 必然就绪。 -->
+<script defer src="data.js"></script>
 <script>
-var CFG = {"y1red":3,"y1orange":2};
+var CFG = {"y1red":3,"y1orange":2,"stableMin":0.8,"recScoreMin":6,"recStableMin":0.7,"recMaxRisk":2,"recWScore":0.5,"recWStable":0.3,"recWYield":0.2};
+/* 对比推荐（docs/15）：模块级 pickBest 的序列化注入 —— 单测覆盖模块版，壳内跑同一份逻辑。 */
+var PICK_BEST = function pickBest(rows, opt = {}) {
+  const {
+    scMin = 6.0, stMin = 0.7, rkMax = 2,
+    wSc = 0.5, wSt = 0.3, wY = 0.2,
+  } = opt;
+  const stabOf = (r) => (typeof r.st === 'number' && typeof r.pt === 'number') ? Math.min(r.st, r.pt) : null;
+  const riskOf = (r) => (typeof r.rk === 'number' && r.rk >= 1 && r.rk <= 5) ? r.rk : 9;
+  // 全部候选都缺稳健度 → 降级为只卡评分+风险，避免整个功能失效
+  const provisional = rows.filter(r => stabOf(r) !== null).length === 0;
+
+  const cand = rows.filter(r => {
+    if (!(typeof r.sc === 'number' && r.sc >= scMin)) return false;
+    if (riskOf(r) > rkMax) return false;
+    if (provisional) return true;
+    const s = stabOf(r);
+    return s !== null && s >= stMin;   // 缺稳健度 → 从严排除
+  });
+  // 供「无人达标」横幅用的本组统计（只给实际分布，**不含阈值**，守 docs/11 E2 黑盒）
+  const allSc = rows.map(r => (typeof r.sc === 'number' ? r.sc : -Infinity));
+  const allSt = rows.map(stabOf).filter(v => v !== null);
+  const stats = {
+    n: rows.length,
+    maxScore: allSc.length ? Math.max(...allSc) : null,
+    maxStab: allSt.length ? Math.max(...allSt) : null,
+  };
+  if (!cand.length) return { best: [], provisional, reason: 'none', stats };
+
+  const norm = (get) => {
+    const vs = cand.map(get).filter(v => typeof v === 'number' && isFinite(v));
+    if (vs.length < cand.length) return null;          // 不是全员有值 → 该项不参与
+    const lo = Math.min(...vs), hi = Math.max(...vs);
+    if (hi === lo) return { all: true, f: () => 1 };   // 全相同 → 都给满分（该维度不区分）
+    return { all: false, f: (v) => (v - lo) / (hi - lo) };
+  };
+  // 收益项：近1月年化优先；全缺则试累计收益
+  const ySrc = cand.every(r => typeof r.y1 === 'number') ? (r => r.y1)
+    : (cand.every(r => typeof r.yw === 'number') ? (r => r.yw) : null);
+  const nSc = norm(r => r.sc);
+  const nSt = provisional ? null : { all: false, f: (v) => v };   // 短板本已 0~1，直接用
+  const nY = ySrc ? norm(ySrc) : null;
+
+  const parts = [];
+  if (nSc) parts.push([wSc, nSc, r => r.sc]);
+  if (nSt) parts.push([wSt, nSt, r => stabOf(r)]);
+  if (nY) parts.push([wY, nY, ySrc]);          // 缺失项不计入 → 权重天然按比例分给其余项
+  const wsum = parts.reduce((a, p) => a + p[0], 0);
+
+  const scored = cand.map(r => {
+    let v = 0;
+    for (const [w, n, get] of parts) v += w * (n.all ? 1 : n.f(get(r)));
+    return { r, v: wsum ? v / wsum : 0 };
+  });
+  scored.sort((a, b) => {
+    if (b.v !== a.v) return b.v - a.v;
+    if (b.r.sc !== a.r.sc) return b.r.sc - a.r.sc;                       // 平局比评分
+    const sa = stabOf(a.r), sb = stabOf(b.r);
+    return (sb === null ? -1 : sb) - (sa === null ? -1 : sa);            // 再平局比稳健度
+  });
+  // 并列：推荐分完全相同的一并入选（用户拍板「并列标红」）
+  const top = scored[0].v;
+  const best = scored.filter(x => Math.abs(x.v - top) < 1e-9).map(x => x.r);
+  return { best, provisional, reason: best.length > 1 ? 'tie' : 'ok', stats };
+};
 var MQL = window.matchMedia('(max-width:767px)');
 var LS = 'mmgt-prefs-v1';
 var CATL = { new: '新发', restock: '补货', onsale: '在售' };
@@ -486,10 +627,13 @@ var SORTS = [
   ['y1:-1', '近1月年化 从高到低'], ['y1:1', '近1月年化 从低到高'],
   ['y3:-1', '近3月年化 从高到低'], ['y7:-1', '近7天年化 从高到低'],
   ['w1:-1', '万元收益 从高到低'], ['sc:-1', '综合评分 从高到低'],
+  ['st:-1', '稳定性 从高到低'], ['pt:-1', '持续性 从高到低'],   // 2026-09-19 待办 C-②
+  ['yw:-1', '累计收益 从高到低'],
   ['td:1', '封闭期 从短到长'], ['td:-1', '封闭期 从长到短']
 ];
 var BUCKETS = [['0:30', '≤1月'], ['30:90', '1-3月'], ['90:180', '3-6月'], ['180:365', '6-12月']];
-var S = { range: 1, cat: 'all', bank: '', q: '', miny: null, hl: false, term: '', rk: '', sort: null, dir: -1 };
+// stable（2026-09-19 待办 C-①）：只看稳健 —— 稳定性与持续性均 ≥ 阈值；阈值可在 CFG 调整
+var S = { range: 1, cat: 'all', bank: '', q: '', miny: null, hl: false, term: '', rk: '', stable: false, sort: null, dir: -1 };
 var sheetKind = null;   // 'filter' | 'sort' | 'matrix' | null（null=产品详情）
 
 /* ---- 深浅色主题：auto（跟随系统）/ 浅色 / 深色 循环，偏好持久化 ---- */
@@ -506,6 +650,11 @@ function applyTheme() {
 }
 
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+/* 链接查表（2026-09-16 C2）：产物把 lw/la 抽成了全局去重表 DATA.links，行内只存下标。
+   -1 表示无链接（或非 http(s)，白名单在 buildData 的 internLink 里已过滤）。 */
+function linkOf(i) { return (typeof i === 'number' && i >= 0 && DATA.links) ? DATA.links[i] : null; }
+function lwOf(r) { return linkOf(r.lw); }
+function laOf(r) { return linkOf(r.la); }
 function fmt(v, d) { return (typeof v === 'number' && isFinite(v)) ? v.toFixed(d) : '—'; }
 function ycls(v) { if (typeof v !== 'number' || !isFinite(v)) return 'yn'; if (v >= CFG.y1red) return 'yr'; if (v >= CFG.y1orange) return 'yo'; return ''; }
 function rkcls(t) { var m = String(t || '').match(/R\s*([1-5])/); return m ? 'rk rk' + m[1] : ''; }
@@ -524,13 +673,14 @@ function loadState() {
   S.rk = ['1', '2', '3'].indexOf(q.get('rk')) >= 0 ? q.get('rk') : (prefs.rk || '');
   S.term = q.get('t') || prefs.term || '';
   S.hl = q.get('hl') ? q.get('hl') === '1' : !!prefs.hl;
+  S.stable = q.get('st') ? q.get('st') === '1' : !!prefs.stable;   // C-①
   var mv = q.get('miny') != null ? parseFloat(q.get('miny')) : prefs.miny;
   S.miny = (mv != null && isFinite(mv)) ? mv : null;
   if (q.get('sort')) { var kv = q.get('sort').split(':'); S.sort = kv[0]; S.dir = kv[1] === '1' ? 1 : -1; }
   else { S.sort = prefs.sort || null; S.dir = prefs.dir || -1; }
 }
 function saveState() {
-  try { localStorage.setItem(LS, JSON.stringify({ bank: S.bank, miny: S.miny, hl: S.hl, sort: S.sort, dir: S.dir, term: S.term, rk: S.rk })); } catch (e) {}
+  try { localStorage.setItem(LS, JSON.stringify({ bank: S.bank, miny: S.miny, hl: S.hl, stable: S.stable, sort: S.sort, dir: S.dir, term: S.term, rk: S.rk })); } catch (e) {}
   var p = new URLSearchParams();
   if (S.range !== 1) p.set('r', S.range);
   if (S.cat !== 'all') p.set('c', S.cat);
@@ -540,6 +690,7 @@ function saveState() {
   if (S.term) p.set('t', S.term);
   if (S.miny != null) p.set('miny', S.miny);
   if (S.hl) p.set('hl', '1');
+  if (S.stable) p.set('st', '1');   // C-①
   if (S.sort) p.set('sort', S.sort + ':' + S.dir);
   var cur = new URLSearchParams(location.hash.replace(/^#/, ''));
   if (cur.get('p')) p.set('p', cur.get('p'));   // 详情路由参数不被列表状态写回覆盖
@@ -560,6 +711,9 @@ function passNonCat(r) {
   if (S.bank && r.b !== S.bank) return false;
   if (S.rk && String(r.rk) !== S.rk) return false;
   if (S.hl && !r.hl) return false;
+  // 只看稳健（2026-09-19 待办 C-①）：稳定性与持续性均达标才保留。
+  //   缺该维度数据的产品（老数据/源站无历史）直接排除 —— 「只看稳健」是强筛选，宁缺勿滥。
+  if (S.stable && !(typeof r.st === 'number' && r.st >= CFG.stableMin && typeof r.pt === 'number' && r.pt >= CFG.stableMin)) return false;
   if (S.miny != null && !(typeof r.y1 === 'number' && r.y1 >= S.miny)) return false;
   if (S.term) { var kv = S.term.split(':'); if (!(typeof r.td === 'number' && r.td >= +kv[0] && r.td <= +kv[1])) return false; }
   if (S.q && (String(r.n) + ' ' + r.code + ' ' + r.b).toLowerCase().indexOf(S.q) < 0) return false;
@@ -580,7 +734,7 @@ function filtered() {
   }
   return out;
 }
-function activeCount() { return (S.bank ? 1 : 0) + (S.rk ? 1 : 0) + (S.term ? 1 : 0) + (S.miny != null ? 1 : 0) + (S.hl ? 1 : 0); }
+function activeCount() { return (S.bank ? 1 : 0) + (S.rk ? 1 : 0) + (S.term ? 1 : 0) + (S.miny != null ? 1 : 0) + (S.hl ? 1 : 0) + (S.stable ? 1 : 0); }
 
 /* ---- 渲染 ---- */
 function badge(c) { return '<span class="badge b-' + c + '">' + (CATL[c] || c) + '</span>'; }
@@ -588,6 +742,25 @@ function scoreHtml(sc) {
   if (typeof sc !== 'number' || !isFinite(sc)) return '<span class="yn">暂无历史</span>';
   var cls = sc >= 7 ? 'hi' : '';
   return '<span class="sbar ' + cls + '"><i style="width:' + Math.max(4, sc * 10) + '%"></i></span>' + sc.toFixed(1);
+}
+/* ---- 稳健度标签（2026-09-19 待办 C-③）----
+   稳定性 st 与 持续性 pt 各为 0~1，取两者较小值映射到 5 档（避免「一高一低」被平均成中等）。
+   统一用「短板」而非均值：稳健是**合取**条件 —— 任一维度不达标就不算稳健。
+   缺维度数据（老数据 yld/score_detail 无这两个键）→ 返回空串，不显示标签（自动降级）。 */
+function stableHtml(r) {
+  if (typeof r.st !== 'number' || typeof r.pt !== 'number') return '';
+  var v = Math.min(r.st, r.pt);
+  var n = v >= 0.9 ? 5 : v >= 0.8 ? 4 : v >= 0.6 ? 3 : v >= 0.4 ? 2 : v >= 0.2 ? 1 : 0;
+  var fill = '';
+  for (var i = 0; i < 5; i++) fill += (i < n ? '●' : '○');
+  var tip = '稳健度 ' + fill + '（稳定性 ' + r.st.toFixed(2) + ' · 持续性 ' + r.pt.toFixed(2) + '）';
+  return '<span class="stabd s' + n + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">' + fill + '</span>';
+}
+/* ---- 累计收益展示（2026-09-19 待办 C-④）----
+   yw = 源站 yld1Mn（近1月累计收益，元/万元），与年化不共线，是独立观测。
+   ⚠ 只有招行 App 详情提供该字段（实测招行 93%、中行 0%）→ 缺失显示「—」。 */
+function yldCell(r) {
+  return typeof r.yw === 'number' ? '<span class="num">' + fmt(r.yw, 2) + '</span>' : '<span class="yn">—</span>';
 }
 function shortRateType(t) {
   if (!t) return '';
@@ -632,6 +805,7 @@ function renderToolbar() {
   $('q').value = S.q; $('qm').value = S.q;
   $('miny').value = S.miny == null ? '' : S.miny;
   $('hlon').checked = S.hl;
+  $('stableon').checked = S.stable;
   var ac = activeCount(), fb = $('fbadge');
   fb.style.display = ac ? 'block' : 'none';
   fb.textContent = ac;
@@ -643,6 +817,7 @@ function renderChips() {
   if (S.term) chips.push(['term', '封闭期：' + termLabel(S.term)]);
   if (S.miny != null) chips.push(['miny', '近1月 ≥' + S.miny + '%']);
   if (S.hl) chips.push(['hl', '只看标红']);
+  if (S.stable) chips.push(['stable', '只看稳健']);   // C-①
   if (S.q) chips.push(['q', '搜索“' + S.q + '”']);
   var out = filtered(), u = union();
   var hlN = u.filter(function (r) { return r.hl; }).length;
@@ -658,6 +833,7 @@ function renderList() {
     var el = $('cards'); el.classList.add('fade'); setTimeout(function () { el.classList.remove('fade'); }, 200);
     el.innerHTML = out.length ? out.map(function (r) {
       var meta = '评分 ' + (typeof r.sc === 'number' ? r.sc.toFixed(1) : '—')
+        + (typeof r.yw === 'number' ? ' · 累计 ' + fmt(r.yw, 2) + ' 元/万' : '')   // C-④ 累计收益（源站 yld1Mn）
         + ' · 万元收益 ' + fmt(r.w1, 4)
         + ' · 权益 ' + (r.eq == null ? '未披露' : fmt(r.eq, 0) + '%')
         + (S.range > 1 ? ' · 采集 ' + r.d.slice(5) : '');
@@ -665,6 +841,7 @@ function renderList() {
         + '<div class="c-top">' + badge(r.c) + '<span class="chip">' + esc(r.b) + '</span>'
         + '<span class="chip ' + rkcls(r.rl) + '">' + esc(r.rl || '—') + '</span>'
         + (r.hl ? '<span class="tagr">★ 标红</span>' : '')
+        + stableHtml(r)                                          /* C-③ 稳健度标签 */
         + (S.range > 1 ? '<span class="chip">采集 ' + esc(r.d.slice(5)) + '</span>' : '')
         + upcomingChip(r)
         + (S.cat === 'watch' ? '<label class="cmpck-w"><input type="checkbox" class="cmpck" data-cmp="' + esc(r.code) + '"' + (CMP.indexOf(r.code) >= 0 ? ' checked' : '') + '>比</label>' : '')
@@ -677,36 +854,48 @@ function renderList() {
         + '<div class="c-t"><b>' + esc(r.tt || '—') + '</b><em>' + esc(r.mb || '—') + '</em></div>'
         + '</div>'
         + '<div class="c-meta"><span>' + meta + '</span>'
-        + (r.la ? '<a class="btn" href="' + esc(r.la) + '" target="_blank" rel="noopener">购买</a>' : '') + '</div>'
+        + (laOf(r) ? '<a class="btn" href="' + esc(laOf(r)) + '" target="_blank" rel="noopener">购买</a>' : '') + '</div>'
         + '</div>';
     }).join('') : '<div class="card empty">该条件下暂无产品<br><button id="resetF">重置筛选</button></div>';
   } else {
     var el2 = $('listbox'); el2.classList.add('fade'); setTimeout(function () { el2.classList.remove('fade'); }, 200);
     var thead = '<thead><tr>'
       + (S.cat === 'watch' ? '<th class="cmpc">比</th>' : '')
-      + '<th>购买</th><th>类别</th><th>银行</th><th>产品名称</th><th>代码</th>'
-      + '<th class="num s" data-k="y1">近1月%</th><th class="num s" data-k="y3">近3月%</th><th class="num s" data-k="y7">近7天%</th>'
-      + '<th class="num s" data-k="w1">万元收益</th><th class="num s" data-k="sc">评分</th>'
-      + '<th class="s" data-k="td">封闭期</th><th>风险</th><th>起购</th><th class="num">权益%</th><th>申购开始</th>'
+      + '<th>购买</th><th class="c-cat">类别</th><th class="c-bank">银行</th><th>产品名称</th><th>代码</th>'
+      + '<th class="num s" data-k="y1">近1月%</th><th class="num s" data-k="y3">近3月%</th><th class="num s c-y7" data-k="y7">近7天%</th>'
+      + '<th class="num s c-w1" data-k="w1">万元收益</th>'
+      + '<th class="num s c-yw" data-k="yw" title="近1月累计收益（元/万元）—— 源站独立字段，与年化不共线">累计收益</th>'
+      + '<th class="num s" data-k="sc">评分</th>'
+      + '<th class="s" data-k="st" title="稳定性与持续性取短板，5 档">稳健</th>'
+      + '<th class="s c-tt" data-k="td">封闭期</th><th class="c-risk">风险</th><th class="c-mb">起购</th><th class="num c-eq">权益%</th><th class="num c-bs">申购开始</th>'
       + '</tr></thead>';
     var body = out.length ? '<tbody>' + out.map(function (r) {
-      var buy = r.lw ? '<a class="btn" href="' + esc(r.lw) + '" target="_blank" rel="noopener">购买</a>' : '—';
+      var buy = lwOf(r) ? '<a class="btn" href="' + esc(lwOf(r)) + '" target="_blank" rel="noopener">购买</a>' : '—';
       return '<tr data-code="' + esc(r.code) + '"' + (r.hl ? ' class="hl"' : '') + '>'
         + (S.cat === 'watch' ? '<td class="cmpc"><input type="checkbox" class="cmpck" data-cmp="' + esc(r.code) + '"' + (CMP.indexOf(r.code) >= 0 ? ' checked' : '') + '></td>' : '')
         + '<td>' + buy + '</td>'
-        + '<td>' + badge(r.c) + '</td><td title="' + esc(r.b) + '">' + esc(shortBank(r.b)) + '</td><td class="tname" title="' + esc(r.n) + '"><div class="clamp">' + nameCell(r) + '</div></td><td class="tcode"><a class="iname" href="#p=' + encodeURIComponent(r.code) + '" data-p="' + esc(r.code) + '">' + esc(r.cd) + '</a></td>'
+        + '<td class="c-cat">' + badge(r.c) + '</td><td class="c-bank" title="' + esc(r.b) + '">' + esc(shortBank(r.b)) + '</td><td class="tname" title="' + esc(r.n) + '"><div class="clamp">' + nameCell(r) + '</div></td><td class="tcode"><a class="iname" href="#p=' + encodeURIComponent(r.code) + '" data-p="' + esc(r.code) + '">' + esc(r.cd) + '</a></td>'
         + '<td class="num ' + ycls(r.y1) + '">' + (r.rateDisp != null ? '<span title="邮储披露口径：' + esc(r.rateType || '') + '">' + fmt(r.rateDisp, 2) + '</span><span class="rtag">' + esc(shortRateType(r.rateType)) + '</span>' : fmt(r.y1, 2)) + '</td>'
-        + '<td class="num">' + fmt(r.y3, 2) + '</td><td class="num">' + fmt(r.y7, 2) + '</td>'
-        + '<td class="num">' + fmt(r.w1, 2) + '</td><td class="num">' + scoreHtml(r.sc) + '</td>'
-        + '<td>' + esc(r.tt || '—') + '</td><td class="' + rkcls(r.rl) + '" title="' + esc(r.rl || '') + '">' + esc(riskShort(r.rl)) + '</td>'
-        + '<td>' + esc(String(r.mb || '—').replace('起购', '')) + '</td><td class="num">' + (r.eq == null ? '未披露' : fmt(r.eq, 0)) + '</td>'
-        + '<td class="num" title="' + esc(r.bs || '') + '">' + esc(r.bs ? r.bs.slice(5) : '—') + '</td></tr>';
+        + '<td class="num">' + fmt(r.y3, 2) + '</td><td class="num c-y7">' + fmt(r.y7, 2) + '</td>'
+        + '<td class="num c-w1">' + fmt(r.w1, 2) + '</td>'
+        + '<td class="c-yw">' + yldCell(r) + '</td>'                    /* C-④ 累计收益 */
+        + '<td class="num">' + scoreHtml(r.sc) + '</td>'
+        + '<td>' + (stableHtml(r) || '<span class="yn">—</span>') + '</td>'   /* C-③ 稳健度 */
+        + '<td class="c-tt">' + esc(r.tt || '—') + '</td><td class="c-risk ' + rkcls(r.rl) + '" title="' + esc(r.rl || '') + '">' + esc(riskShort(r.rl)) + '</td>'
+        + '<td class="c-mb">' + esc(String(r.mb || '—').replace('起购', '')) + '</td><td class="num c-eq">' + (r.eq == null ? '未披露' : fmt(r.eq, 0)) + '</td>'
+        + '<td class="num c-bs" title="' + esc(r.bs || '') + '">' + esc(r.bs ? r.bs.slice(5) : '—') + '</td></tr>';
     }).join('') + '</tbody>'
-      : '<tbody><tr><td colspan="' + (S.cat === 'watch' ? 16 : 15) + '" class="empty">该条件下暂无产品' + (S.cat === 'watch' ? '（点产品旁的 ★ 先关注）' : '') + ' <button id="resetF">重置筛选</button></td></tr></tbody>';
+      : '<tbody><tr><td colspan="' + (S.cat === 'watch' ? 18 : 17) + '" class="empty">该条件下暂无产品' + (S.cat === 'watch' ? '（点产品旁的 ★ 先关注）' : '') + ' <button id="resetF">重置筛选</button></td></tr></tbody>';
     el2.innerHTML = '<table>' + thead + body + '</table>';
   }
 }
 function renderAll() {
+  // 关注页不显示底部 Dock（2026-09-16 用户拍板）：类名在此统一维护，
+  // 已在 Dock 态时立即出坞（FLIP 反向动画由 flipTo(false) 负责）。
+  var noDock = S.cat === 'watch';
+  var had = document.body.classList.contains('nowatchdock');
+  document.body.classList.toggle('nowatchdock', noDock);
+  if (noDock && !had && window.__mmgtFlipTo) window.__mmgtFlipTo(false);
   renderTabs(); renderToolbar(); renderChips(); renderList(); renderCmpBar();
   $('dateline').innerHTML = '数据截至 ' + DATA.days[0].date
     + (S.range > 1 ? '（近' + (S.range === 0 ? DATA.days.length : S.range) + '天合并视图）' : '')
@@ -742,6 +931,9 @@ function filterSheetHtml() {
     + '<input type="number" id="fsMinyIn" step="0.1" placeholder="自定义阈值（%）" value="' + (S.miny == null ? '' : S.miny) + '"></div>'
     + '<div class="fsec"><div class="fl">标红</div><label style="display:flex;gap:8px;align-items:center;font-size:13.5px">'
     + '<input type="checkbox" id="fsHl" class="switch"' + (S.hl ? ' checked' : '') + '> 只看标红产品</label></div>'
+    // C-①「只看稳健」：稳定性与持续性均 ≥ CFG.stableMin（默认 0.8）
+    + '<div class="fsec"><div class="fl">稳健度</div><label style="display:flex;gap:8px;align-items:center;font-size:13.5px">'
+    + '<input type="checkbox" id="fsStable" class="switch"' + (S.stable ? ' checked' : '') + '> 只看稳健产品（各期收益平稳且长期为正）</label></div>'
     + '<div class="sheet-foot"><button class="ghost" id="fsReset">重置</button>'
     + '<button class="primary" id="fsDone">查看 ' + filtered().length + ' 只</button></div>';
 }
@@ -822,9 +1014,23 @@ function renderCmpBar() {
   if (show) el.innerHTML = '<span>已选 ' + CMP.length + '/4 只</span>'
     + '<button class="primary" id="cmpGo">对比</button><button class="ghost" id="cmpClear">清空</button>';
 }
+/* 对比推荐（docs/15，2026-09-20 用户拍板 B 方案）—— **实现在模块级并导出**（可单测），
+   此处仅做参数注入。逻辑详见模块顶部 pickBest 的注释（含「有条件推荐」的设计理由）。
+   ⚠ 提取到模块级的原因与 highlightOf 同理：逻辑要能被 node:test 直接覆盖。 */
+function pickBest(rows) {
+  return PICK_BEST(rows, {
+    scMin: CFG.recScoreMin, stMin: CFG.recStableMin, rkMax: CFG.recMaxRisk,
+    wSc: CFG.recWScore, wSt: CFG.recWStable, wY: CFG.recWYield,
+  });
+}
+
 function compareHtml() {
   var rows = CMP.map(function (c) { return findRow(c); }).filter(Boolean);
   if (rows.length < 2) return '<div class="d-sec" style="margin-top:0">产品对比</div><div class="empty">在「关注」列表勾选 2~4 只产品后对比</div>';
+  var rec = pickBest(rows);
+  var bestSet = {};
+  rec.best.forEach(function (r) { bestSet[r.code] = 1; });
+  var banner = recBanner(rec);
   var num = function (r, k) { return typeof r[k] === 'number' && isFinite(r[k]) ? r[k] : null; };
   /* ---- 手机（≤767px）W 行排：一行一产品全指标，粘性产品名列 + 横向滚动翻看指标 ---- */
   if (window.matchMedia('(max-width:767px)').matches) {
@@ -838,7 +1044,7 @@ function compareHtml() {
       ['风险', function (r) { return '<span class="' + rkcls(r.rl) + '">' + esc(riskShort(r.rl) || '—') + '</span>'; }, null, null],
       ['起购', function (r) { return '<span class="num">' + esc(r.mb || '—') + '</span>'; }, null, null],
       ['申购开始', function (r) { return '<span class="num">' + esc(r.bs ? r.bs.slice(5) : '—') + '</span>'; }, null, null],
-      ['购买', function (r) { return r.lw ? '<a class="btn" href="' + esc(r.lw) + '" target="_blank" rel="noopener">购买</a>' : '—'; }, null, null],
+      ['购买', function (r) { return lwOf(r) ? '<a class="btn' + (bestSet[r.code] ? ' rec-btn' : '') + '" href="' + esc(lwOf(r)) + '" target="_blank" rel="noopener">' + (bestSet[r.code] ? '立即购买' : '购买') + '</a>' : '—'; }, null, null],
     ];
     var bests = {};
     cols.forEach(function (a, i) {
@@ -849,13 +1055,13 @@ function compareHtml() {
     });
     var whead = '<tr><th class="wname">产品</th>' + cols.map(function (a) { return '<th>' + a[0] + '</th>'; }).join('') + '</tr>';
     var wbody = rows.map(function (r) {
-      return '<tr><td class="wname"><b title="' + esc(r.n) + '">' + esc(r.n) + '</b><span class="wsub">' + badge(r.c) + esc(shortBank(r.b)) + ' <span class="tcode">' + esc(r.cd) + '</span></span></td>'
+      return '<tr' + (bestSet[r.code] ? ' class="recrow"' : '') + '><td class="wname"><b title="' + esc(r.n) + '">' + esc(r.n) + (bestSet[r.code] ? ' <span class="rec-tag">推荐</span>' : '') + '</b><span class="wsub">' + badge(r.c) + esc(shortBank(r.b)) + ' <span class="tcode">' + esc(r.cd) + '</span></span></td>'
         + cols.map(function (a, i) {
             var v = a[3] ? num(r, a[3]) : null;
             return '<td class="' + (bests[i] != null && v === bests[i] ? 'best' : '') + '">' + a[1](r) + '</td>';
           }).join('') + '</tr>';
     }).join('');
-    return '<div class="d-sec" style="margin-top:0">产品对比（' + rows.length + ' 只）</div>'
+    return banner + '<div class="d-sec" style="margin-top:0">产品对比（' + rows.length + ' 只）</div>'
       + '<div class="wwrap"><table class="wtab"><thead>' + whead + '</thead><tbody>' + wbody + '</tbody></table></div>';
   }
   /* ---- PC V 矩阵：产品为列（table-layout:fixed，名称两行换行防顶出） ---- */
@@ -879,17 +1085,45 @@ function compareHtml() {
     ['综合评分', function (r) { return scoreHtml(r.sc); }, 'max', 'sc'],
     ['封闭期', function (r) { return esc(r.tt || '—'); }, 'min', 'td'],
   ];
-  var head = '<tr><th></th>' + rows.map(function (r) { return '<th>' + esc(shortBank(r.b)) + '<br><span class="tcode">' + esc(r.cd) + '</span></th>'; }).join('') + '</tr>';
+  var head = '<tr><th></th>' + rows.map(function (r) {
+    return '<th' + (bestSet[r.code] ? ' class="rec-col"' : '') + '>' + (bestSet[r.code] ? '<span class="rec-tag">推荐</span> ' : '') + esc(shortBank(r.b)) + '<br><span class="tcode">' + esc(r.cd) + '</span></th>';
+  }).join('') + '</tr>';
   var body = '<tr><td class="k">产品</td>' + rows.map(function (r) { return '<td><b class="cmpname">' + esc(r.n) + '</b></td>'; }).join('') + '</tr>'
     + '<tr><td class="k">类别</td>' + rows.map(function (r) { return '<td>' + badge(r.c) + '</td>'; }).join('') + '</tr>'
     + attrs.map(function (a) { return '<tr><td class="k">' + a[0] + '</td>' + rows.map(function (r) { return cellHtml(r, a); }).join('') + '</tr>'; }).join('')
     + '<tr><td class="k">风险</td>' + rows.map(function (r) { return '<td class="' + rkcls(r.rl) + '">' + esc(riskShort(r.rl) || '—') + '</td>'; }).join('') + '</tr>'
     + '<tr><td class="k">起购</td>' + rows.map(function (r) { return '<td class="num">' + esc(r.mb || '—') + '</td>'; }).join('') + '</tr>'
     + '<tr><td class="k">申购开始</td>' + rows.map(function (r) { return '<td class="num">' + esc(r.bs ? r.bs.slice(5) : '—') + '</td>'; }).join('') + '</tr>'
-    + '<tr><td class="k">购买</td>' + rows.map(function (r) { return '<td>' + (r.lw ? '<a class="btn" href="' + esc(r.lw) + '" target="_blank" rel="noopener">购买</a>' : '—') + '</td>'; }).join('') + '</tr>';
-  return '<div class="d-sec" style="margin-top:0">产品对比（' + rows.length + ' 只）</div>'
+    + '<tr><td class="k">购买</td>' + rows.map(function (r) {
+        return '<td' + (bestSet[r.code] ? ' class="rec-col"' : '') + '>' + (lwOf(r) ? '<a class="btn' + (bestSet[r.code] ? ' rec-btn' : '') + '" href="' + esc(lwOf(r)) + '" target="_blank" rel="noopener">' + (bestSet[r.code] ? '立即购买' : '购买') + '</a>' : '—') + '</td>';
+      }).join('') + '</tr>';
+  return banner + '<div class="d-sec" style="margin-top:0">产品对比（' + rows.length + ' 只）</div>'
     + '<div class="mxwrap"><table class="cmpt">' + head + body + '</table></div>';
 }
+/**
+ * 推荐横幅（docs/15 §4）。两种形态：
+ *   ① 有合格者 → 绿底「✓ 推荐购买：X（评分 · 稳健度）」
+ *   ② 无人达标 → 中性提示 + **引导语**（用户拍板要加），列出本组实际维度分布帮用户判断。
+ * ⚠ 黑盒原则（docs/11 E2）：**只显示产品自身的维度值，不显示阈值数值**。
+ */
+function recBanner(rec) {
+  if (rec.best.length) {
+    var names = rec.best.map(function (r) {
+      return '<b>' + esc(r.n) + '</b>';
+    }).join('、');
+    var head = (rec.best.length > 1 ? '并列推荐购买：' : '推荐购买：') + names;
+    var one = rec.best[0];
+    var stab = (typeof one.st === 'number' && typeof one.pt === 'number') ? Math.min(one.st, one.pt) : null;
+    var why = '评分 ' + fmt(one.sc, 1) + (stab !== null ? ' · 稳健度 ' + stableHtml(one) : '');
+    return '<div class="recbar rec-yes"><span class="rec-ico">✓</span><span>' + head + '<em>' + why + '</em></span></div>';
+  }
+  // 无人达标：给引导语（只列本组实际分布，不露阈值）
+  var s = rec.stats || {};
+  var stTxt = (typeof s.maxStab === 'number') ? ('稳健度最高 ' + s.maxStab.toFixed(2)) : '稳健度数据不足';
+  var scTxt = (typeof s.maxScore === 'number' && isFinite(s.maxScore)) ? ('最高评分 ' + fmt(s.maxScore, 1)) : '暂无评分';
+  return '<div class="recbar rec-no"><span class="rec-ico">i</span><span>本组 ' + (s.n || 0) + ' 只均未达到推荐线。建议对照 <b>评分</b> 与 <b>稳健度</b> 两列自行判断 —— 本组 ' + scTxt + '、' + stTxt + '。</span></div>';
+}
+
 function openCompare() {
   if (CMP.length < 2) return;
   sheetKind = 'compare';
@@ -915,7 +1149,12 @@ function detailHtml(r) {
     ['权益类资产上限', r.eq == null ? '未披露' : fmt(r.eq, 2) + '%'],
     ['申购开始', esc(r.bs || '—')], ['申购结束', esc(r.be || '—')],
     ['发行机构', esc(r.issuer || '—')], ['登记编码', esc(r.reg || '—')],
-    ['万元收益（近1月）', fmt(r.w1, 4)], ['采集日期', esc(r.d || '—')],
+    ['万元收益（近1月）', fmt(r.w1, 4) + ' <span class="yn">元/天</span>'],
+    // C-④ 累计收益（源站 yld1Mn，元/万元）—— 与年化不共线，仅招行 App 详情提供
+    ['累计收益（近1月）', typeof r.yw === 'number' ? '<b class="num">' + fmt(r.yw, 2) + '</b> <span class="yn">元/万元</span>' : '<span class="yn">源站未提供</span>'],
+    // C-③ 稳健度（稳定性/持续性取短板，5 档）
+    ['稳健度', stableHtml(r) ? stableHtml(r) + ' <span class="yn">稳定性 ' + r.st.toFixed(2) + ' · 持续性 ' + r.pt.toFixed(2) + '</span>' : '<span class="yn">数据不足</span>'],
+    ['采集日期', esc(r.d || '—')],
     ['销售时间规则', esc(r.str || '—')]
   ];
   var perf = (r.perf && r.perf.length)
@@ -936,10 +1175,10 @@ function detailHtml(r) {
     + calcHtml(r) + icsHtml(r) + holdHtml(r)
     + perf
     + '<div class="d-grid">' + kv.map(function (x) { return '<div><div class="k">' + x[0] + '</div><div class="v">' + x[1] + '</div></div>'; }).join('') + '</div>'
-    + (r.c !== 'onsale' && r.rs ? '<div class="d-sec">判定说明</div><div class="d-reason">' + esc(r.rs) + '</div>' : '')
+    + (r.c !== 'onsale' && r.rs ? '<div class="d-sec">募集说明</div><div class="d-reason">' + esc(r.rs) + '</div>' : '')
     + '<div class="d-btns">'
-    + (r.lw ? '<a class="btn" href="' + esc(r.lw) + '" target="_blank" rel="noopener">官网购买</a>' : '')
-    + (r.la && r.la !== r.lw ? '<a class="ghost" style="text-align:center;padding:10px 0;border-radius:9px;font-weight:600" href="' + esc(r.la) + '" target="_blank" rel="noopener">App 端购买</a>' : '')
+    + (lwOf(r) ? '<a class="btn" href="' + esc(lwOf(r)) + '" target="_blank" rel="noopener">官网购买</a>' : '')
+    + (laOf(r) && laOf(r) !== lwOf(r) ? '<a class="ghost" style="text-align:center;padding:10px 0;border-radius:9px;font-weight:600" href="' + esc(laOf(r)) + '" target="_blank" rel="noopener">App 端购买</a>' : '')
     + '</div>'
     + '<div style="margin-top:12px;text-align:center"><a class="dfull" href="#p=' + encodeURIComponent(r.code) + '" data-p="' + esc(r.code) + '" style="font-size:12.5px">查看完整详情页 →</a></div>';
 }
@@ -1082,7 +1321,10 @@ function showDetailPage(r) {
     ['权益类资产上限', r.eq == null ? '未披露' : fmt(r.eq, 2) + '%'],
     ['申购开始', esc(r.bs || '—')], ['申购结束', esc(r.be || '—')],
     ['发行机构', esc(r.issuer || '—')], ['登记编码', esc(r.reg || '—')],
-    ['万元收益（近1月）', fmt(r.w1, 4)], ['销售时间规则', esc(r.str || '—')],
+    ['万元收益（近1月）', fmt(r.w1, 4) + ' <span class="yn">元/天</span>'],
+    ['累计收益（近1月）', typeof r.yw === 'number' ? '<b class="num">' + fmt(r.yw, 2) + '</b> <span class="yn">元/万元</span>' : '<span class="yn">源站未提供</span>'],
+    ['稳健度', stableHtml(r) ? stableHtml(r) + ' <span class="yn">稳定性 ' + r.st.toFixed(2) + ' · 持续性 ' + r.pt.toFixed(2) + '</span>' : '<span class="yn">数据不足</span>'],
+    ['销售时间规则', esc(r.str || '—')],
     ['首次采集', esc(h.length ? DATA.days[h[0][0]].date : r.d)], ['采集天数', String(h.length)]
   ];
   var perf = (r.perf && r.perf.length)
@@ -1111,10 +1353,10 @@ function showDetailPage(r) {
     + '<div class="d-sec">本站采集历史</div><table class="hx"><thead><tr><th>采集日期</th><th class="num">近1月年化%</th><th class="num">评分</th></tr></thead><tbody>'
     + (histRows || '<tr><td colspan="3">—</td></tr>') + '</tbody></table>'
     + '<div class="d-grid" style="margin-top:14px">' + kv.map(function (x) { return '<div><div class="k">' + x[0] + '</div><div class="v">' + x[1] + '</div></div>'; }).join('') + '</div>'
-    + (r.c !== 'onsale' && r.rs ? '<div class="d-sec">判定说明</div><div class="d-reason">' + esc(r.rs) + '</div>' : '')
+    + (r.c !== 'onsale' && r.rs ? '<div class="d-sec">募集说明</div><div class="d-reason">' + esc(r.rs) + '</div>' : '')
     + '<div class="d-btns">'
-    + (r.lw ? '<a class="btn" href="' + esc(r.lw) + '" target="_blank" rel="noopener">官网购买</a>' : '')
-    + (r.la && r.la !== r.lw ? '<a class="ghost" style="text-align:center;padding:10px 0;border-radius:9px;font-weight:600" href="' + esc(r.la) + '" target="_blank" rel="noopener">App 端购买</a>' : '')
+    + (lwOf(r) ? '<a class="btn" href="' + esc(lwOf(r)) + '" target="_blank" rel="noopener">官网购买</a>' : '')
+    + (laOf(r) && laOf(r) !== lwOf(r) ? '<a class="ghost" style="text-align:center;padding:10px 0;border-radius:9px;font-weight:600" href="' + esc(laOf(r)) + '" target="_blank" rel="noopener">App 端购买</a>' : '')
     + '</div>'
     + '<div class="pv-disc">数据来源为各银行公开渠道接口，可能存在延迟或错漏；本页仅供参考，不构成投资建议。理财非存款、产品有风险、投资须谨慎。</div>';
   $('pvBack').addEventListener('click', function () { if (pushed) history.back(); else gotoList(); });
@@ -1155,6 +1397,7 @@ function bind() {
     mT = setTimeout(function () { var v = parseFloat(e.target.value); S.miny = isFinite(v) ? v : null; renderAll(); }, 300);
   });
   $('hlon').addEventListener('change', function (e) { S.hl = e.target.checked; renderAll(); });
+  $('stableon').addEventListener('change', function (e) { S.stable = e.target.checked; renderAll(); });
   $('resetBtn').addEventListener('click', resetFilters);
   $('mxBtn').addEventListener('click', function () { openSheet('matrix'); });
   $('mSearch').addEventListener('click', function () {
@@ -1222,7 +1465,7 @@ function bind() {
         'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
         'DTSTART;VALUE=DATE:' + dt, 'DTEND;VALUE=DATE:' + dd.toISOString().slice(0, 10).replace(/-/g, ''),
         'SUMMARY:理财开售：' + (rr.n || rr.code),
-        'DESCRIPTION:代码 ' + rr.code + ' · ' + (rr.b || '') + (rr.lw ? ' · ' + rr.lw : ''),
+        'DESCRIPTION:代码 ' + rr.code + ' · ' + (rr.b || '') + (lwOf(rr) ? ' · ' + lwOf(rr) : ''),
         'END:VEVENT', 'END:VCALENDAR'].join('\r\n');   // 注意：处于模板字符串内，须双反斜杠，否则产物中出现真实 CRLF 拆断字符串
       var blob = new Blob([icsDoc], { type: 'text/calendar' });
       var a = document.createElement('a');
@@ -1258,6 +1501,7 @@ function bind() {
     if (k === 'term') S.term = '';
     if (k === 'miny') S.miny = null;
     if (k === 'hl') S.hl = false;
+    if (k === 'stable') S.stable = false;   // C-①
     if (k === 'q') S.q = '';
     renderAll();
   });
@@ -1293,6 +1537,7 @@ function bind() {
   $('drawerBody').addEventListener('change', function (e) {
     if (e.target.id === 'fsBank') { S.bank = e.target.value; renderAll(); refreshSheetDone(); }
     if (e.target.id === 'fsHl') { S.hl = e.target.checked; renderAll(); refreshSheetDone(); }
+    if (e.target.id === 'fsStable') { S.stable = e.target.checked; renderAll(); refreshSheetDone(); }   // C-①
   });
   var fsT;
   $('drawerBody').addEventListener('input', function (e) {
@@ -1331,12 +1576,16 @@ function bind() {
   var tt = $('toTop');
   window.addEventListener('scroll', function () { tt.classList.toggle('show', window.scrollY > 600); }, { passive: true });
   tt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  /* ---- 移动端底部 Dock：下滑过工具行原位后收进底部玻璃胶囊，回滚原位还原（FLIP 位移） ---- */
+  /* ---- 移动端底部 Dock：下滑过工具行原位后收进底部玻璃胶囊，回滚原位还原（FLIP 位移） ----
+     2026-09-16 用户拍板：**关注页不显示 Dock**（body.nowatchdock，由 renderAll 维护）——
+     关注页没有筛选/排序/矩阵需求，底部浮层只会遮挡内容。 */
   (function () {
     var mt = $('mtools'); if (!mt) return;
     var dockAt = 0, docked = false;
+    function suppressed() { return document.body.classList.contains('nowatchdock'); }
     function measure() { dockAt = MQL.matches ? mt.offsetTop - 10 : 0; }
     function flipTo(apply) {          /* apply: true=入坞, false=回原位；记录位移前后差值做反向动画 */
+      if (apply && suppressed()) return;   // 关注页：不吸底
       var before = mt.getBoundingClientRect().top;
       docked = apply;
       document.body.classList.toggle('mdock', apply);
@@ -1346,6 +1595,7 @@ function bind() {
       mt.style.transform = 'translateY(' + dy + 'px)';
       requestAnimationFrame(function () { mt.style.transition = ''; mt.style.transform = ''; });
     }
+    window.__mmgtFlipTo = flipTo;      // 供 renderAll 在切到关注页时立即出坞
     window.addEventListener('scroll', function () {
       if (!MQL.matches || document.body.classList.contains('pv')) return;
       if (!docked && window.scrollY > dockAt) flipTo(true);
@@ -1372,15 +1622,47 @@ function rebuildSheet() {
   $('drawerBody').scrollTop = keep;
 }
 function resetFilters() {
-  S.bank = ''; S.q = ''; S.miny = null; S.hl = false; S.cat = 'all'; S.sort = null; S.dir = -1; S.term = ''; S.rk = '';
+  S.bank = ''; S.q = ''; S.miny = null; S.hl = false; S.stable = false; S.cat = 'all'; S.sort = null; S.dir = -1; S.term = ''; S.rk = '';
   renderAll();
 }
 
-loadState();
-bind();
-renderAll();
-applyTheme();
-route();
+/* 启动（2026-09-16 配合 data.js 的 defer）：defer 脚本在 DOMContentLoaded 之前执行完毕，
+   所以在这里启动一定能拿到 DATA。若文档已解析完（理论上不会，防御），立即启动。 */
+function boot() {
+  if (window.__mmgtBooted) return;
+  window.__mmgtBooted = true;
+  loadState();
+  bind();
+  renderAll();
+  applyTheme();
+  route();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+/* 版本协商（2026-09-16 P1-10）：SW 对 index.html 用 stale-while-revalidate、对 data.js 用
+   network-first，跨版本一拍会拿到「旧壳 + 新数据」→ 结构不兼容即白屏，且会一直持续。
+   这里在渲染前先比对：不一致就注销 SW、清空全部缓存，并只强制重载一次（防循环）。 */
+(function versionGuard() {
+  var shell = window.__MMGT_BUILD__ || 'dev';
+  var dataV = (typeof DATA !== 'undefined' && DATA && DATA.v) ? DATA.v : 'dev';
+  if (shell === dataV || dataV === 'dev' || shell === 'dev') return;   // 本地 file:// / 开发态不干预
+  var KEY = 'mmgt-vguard';
+  var last = '';
+  try { last = sessionStorage.getItem(KEY) || ''; } catch (e) {}
+  if (last === shell + '|' + dataV) return;   // 已经重载过一次仍不一致 → 放弃，避免死循环
+  try { sessionStorage.setItem(KEY, shell + '|' + dataV); } catch (e) {}
+  console.warn('[mmgt] 壳/数据版本不一致，正在刷新缓存：', shell, 'vs', dataV);
+  var done = function () { location.reload(); };
+  if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
+    navigator.serviceWorker.getRegistrations().then(function (rs) {
+      return Promise.all(rs.map(function (r) { return r.unregister(); }));
+    }).then(function () {
+      return (window.caches && caches.keys) ? caches.keys().then(function (ks) {
+        return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+      }) : null;
+    }).then(done).catch(done);
+  } else { done(); }
+})();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {   // SW 安全上下文；LAN IP 明文 http 浏览器不允许，上线 https 后生效
   navigator.serviceWorker.register('sw.js').catch(function () {});
 }
