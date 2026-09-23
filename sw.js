@@ -1,6 +1,6 @@
 // 银行理财日报离线缓存（docs/05 二期）
 // 策略：network-first —— 数据每日更新，在线取最新并写缓存；断网回退缓存（昨日数据）
-var CACHE = 'mmgt-site-v2-2026-09-21-209968';
+var CACHE = 'mmgt-site-v2-2026-09-23-672904';
 var FILES = ['./', './index.html', './data.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));
