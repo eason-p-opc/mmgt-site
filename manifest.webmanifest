@@ -1,7 +1,7 @@
 {
   "name": "银行理财日报",
   "short_name": "理财日报",
-  "description": "招行 + 中行理财产品每日采集清单",
+  "description": "招行 + 中行 + 邮储理财产品每日采集清单",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

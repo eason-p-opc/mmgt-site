@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <script>try{var tp=localStorage.getItem('mmgt-theme')||'auto';var dk=tp==='dark'||(tp==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=dk?'dark':'light';}catch(e){}</script>
 <!-- 壳构建版本（P1-10）：与 data.js 的 DATA.v 比对，不一致说明 SW 给到了跨版本的壳/数据组合 -->
-<script>window.__MMGT_BUILD__='2026-10-02-857352';</script>
+<script>window.__MMGT_BUILD__='2026-10-03-992490';</script>
 <style>
 /* ===== 简约质感风 v2.0（docs/07）demo 样式层：Apple 基调 + Google M3 语义 + Amazon 清单密度 ===== */
 :root{
@@ -139,6 +139,7 @@ body.search-open .msearchrow{display:block}
 /* ---- 徽章：M3 tonal，无描边 ---- */
 .badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
 .b-new{background:var(--tonal-blue);color:var(--accent)} .b-restock{background:var(--tonal-orange);color:var(--orange)} .b-onsale{background:var(--tonal-neutral);color:var(--ink2)}
+.b-other{background:var(--tonal-neutral);color:var(--ink2)}   /* 2026-10-01 P2：未知类别的中性兜底样式 */
 .chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;border:none;background:var(--fill);color:var(--ink2);white-space:nowrap}
 .tagr{display:inline-block;font-size:10.5px;padding:1px 8px;border-radius:999px;border:none;background:var(--tonal-red);color:var(--red);white-space:nowrap;line-height:16px}
 /* ---- 稳健度标签 s0~s5（2026-09-19 待办 C-③）：●实心/○空心，5 档 ---- */
@@ -668,7 +669,7 @@ function loadState() {
   var rv = parseInt(q.get('r'), 10);
   S.range = [0, 3, 7].indexOf(rv) >= 0 ? rv : 1;
   S.cat = ['watch', 'all', 'new', 'restock', 'onsale'].indexOf(q.get('c')) >= 0 ? q.get('c') : 'all';
-  S.q = q.get('q') || '';
+  S.q = (q.get('q') || '').toLowerCase();   // 2026-10-01 P2：输入路径已 toLowerCase，hash 恢复漏了 → #q=ABC 永远搜不到
   S.bank = q.get('bank') || prefs.bank || '';
   S.rk = ['1', '2', '3'].indexOf(q.get('rk')) >= 0 ? q.get('rk') : (prefs.rk || '');
   S.term = q.get('t') || prefs.term || '';
@@ -737,7 +738,13 @@ function filtered() {
 function activeCount() { return (S.bank ? 1 : 0) + (S.rk ? 1 : 0) + (S.term ? 1 : 0) + (S.miny != null ? 1 : 0) + (S.hl ? 1 : 0) + (S.stable ? 1 : 0); }
 
 /* ---- 渲染 ---- */
-function badge(c) { return '<span class="badge b-' + c + '">' + (CATL[c] || c) + '</span>'; }
+/* 2026-10-01 修复 P2：类别白名单 + esc() —— 此前 c 同时拼进 class 与文本且未转义。
+   未知类别落到 b-other（renderTabs 计数另有兜底，不再变 NaN）。 */
+var CATW = ['new', 'restock', 'onsale'];
+function badge(c) {
+  var k = CATW.indexOf(c) >= 0 ? c : 'other';
+  return '<span class="badge b-' + k + '">' + esc(CATL[c] || c || '其他') + '</span>';
+}
 function scoreHtml(sc) {
   if (typeof sc !== 'number' || !isFinite(sc)) return '<span class="yn">暂无历史</span>';
   var cls = sc >= 7 ? 'hi' : '';
@@ -770,7 +777,7 @@ function shortRateType(t) {
   return t.length > 6 ? t.slice(0, 5) + '…' : t;
 }
 function shortBank(b) { return b === '招商银行' ? '招行' : b === '中国银行' ? '中行' : b; }
-function riskShort(t) { var m = String(t || '').match(/Rs*[1-5]/); return m ? m[0] : (t || '—'); }
+function riskShort(t) { var m = String(t || '').match(/R\s*[1-5]/); return m ? m[0] : (t || '—'); }
 function nameCell(r) {
   return wstarHtml(r.code) + '<a class="iname" href="#p=' + encodeURIComponent(r.code) + '" data-p="' + esc(r.code) + '" title="' + esc(r.n) + '">'
     + (r.hl ? '<span class="star">★</span>' : '') + esc(r.n)
@@ -780,7 +787,7 @@ function nameCell(r) {
 function renderTabs() {
   var base = union().filter(passNonCat);
   var n = { all: base.length, watch: 0, new: 0, restock: 0, onsale: 0 };
-  base.forEach(function (r) { n[r.c]++; if (isWatch(r.code)) n.watch++; });
+  base.forEach(function (r) { n[r.c] = (n[r.c] || 0) + 1; if (isWatch(r.code)) n.watch++; });   // 未知类别不得把计数加成 NaN
   var rng = [[1, '最新一天'], [3, '近3天'], [7, '近7天'], [0, '全部 ' + DATA.days.length + ' 天']];
   $('tabs').innerHTML = ['watch', 'all', 'new', 'restock', 'onsale'].map(function (k) {
     var lab = k === 'all' ? '全部 ' + n.all : k === 'watch' ? '关注 ' + n.watch : CATL[k] + ' ' + n[k];
@@ -835,7 +842,7 @@ function renderList() {
       var meta = '评分 ' + (typeof r.sc === 'number' ? r.sc.toFixed(1) : '—')
         + (typeof r.yw === 'number' ? ' · 累计 ' + fmt(r.yw, 2) + ' 元/万' : '')   // C-④ 累计收益（源站 yld1Mn）
         + ' · 万元收益 ' + fmt(r.w1, 4)
-        + ' · 权益 ' + (r.eq == null ? '未披露' : fmt(r.eq, 0) + '%')
+        + ' · 权益 ' + (r.eq == null ? '未披露' : (r.eqi ? '未提及' : fmt(r.eq, 0) + '%'))
         + (S.range > 1 ? ' · 采集 ' + r.d.slice(5) : '');
       return '<div class="card' + (r.hl ? ' hl' : '') + '" data-code="' + esc(r.code) + '" role="button" tabindex="0" aria-label="' + esc(r.n) + '">'
         + '<div class="c-top">' + badge(r.c) + '<span class="chip">' + esc(r.b) + '</span>'
@@ -882,7 +889,7 @@ function renderList() {
         + '<td class="num">' + scoreHtml(r.sc) + '</td>'
         + '<td>' + (stableHtml(r) || '<span class="yn">—</span>') + '</td>'   /* C-③ 稳健度 */
         + '<td class="c-tt">' + esc(r.tt || '—') + '</td><td class="c-risk ' + rkcls(r.rl) + '" title="' + esc(r.rl || '') + '">' + esc(riskShort(r.rl)) + '</td>'
-        + '<td class="c-mb">' + esc(String(r.mb || '—').replace('起购', '')) + '</td><td class="num c-eq">' + (r.eq == null ? '未披露' : fmt(r.eq, 0)) + '</td>'
+        + '<td class="c-mb">' + esc(String(r.mb || '—').replace('起购', '')) + '</td><td class="num c-eq"' + (r.eqi ? ' title="源站全文未提及权益，按推断记 0，非披露值"' : '') + '>' + (r.eq == null ? '未披露' : (r.eqi ? '未提及' : fmt(r.eq, 0))) + '</td>'
         + '<td class="num c-bs" title="' + esc(r.bs || '') + '">' + esc(r.bs ? r.bs.slice(5) : '—') + '</td></tr>';
     }).join('') + '</tbody>'
       : '<tbody><tr><td colspan="' + (S.cat === 'watch' ? 18 : 17) + '" class="empty">该条件下暂无产品' + (S.cat === 'watch' ? '（点产品旁的 ★ 先关注）' : '') + ' <button id="resetF">重置筛选</button></td></tr></tbody>';
@@ -971,6 +978,7 @@ function openSheet(kind) {
   $('drawerBody').innerHTML = kind === 'filter' ? filterSheetHtml() : kind === 'sort' ? sortSheetHtml() : kind === 'compare' ? compareHtml() : matrixHtml();
   $('drawerBody').scrollTop = 0;
   $('drawer').classList.add('open');
+  $('drawer').setAttribute('aria-hidden', 'false');   // 2026-10-01 P2：打开时必须翻转（此前恒为 true）
   $('overlay').classList.add('open');
   document.body.classList.add('locked');
   drawerFocus();
@@ -983,7 +991,10 @@ function refreshSheetDone() {
 /* ---- 产品详情抽屉 ---- */
 /* ---- E3 临近开售 / 日历 / 持仓 + E4 收益试算 ---- */
 function daysUntil(bs) {
-  if (!/^d{4}-d{2}-d{2}$/.test(bs || '')) return null;
+  /* ⚠ 本函数位于 renderShell 的模板字符串内：正则反斜杠必须写双份，否则模板求值时会被逐个
+     吞掉，生成物的日期正则恒不匹配 →「N 天后开售」与「加入日历」按钮永不出现（docs/16 P1-3）。
+     回归锁见 test/site.test.mjs（生成物不得含被吞掉的反斜杠形态）。 */
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(bs || '')) return null;
   return Math.round((new Date(bs + 'T00:00:00') - new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00')) / 86400000);
 }
 function upcomingChip(r) {
@@ -1130,6 +1141,7 @@ function openCompare() {
   $('drawerBody').innerHTML = compareHtml();
   $('drawerBody').scrollTop = 0;
   $('drawer').classList.add('open');
+  $('drawer').setAttribute('aria-hidden', 'false');   // 2026-10-01 P2：打开时必须翻转（此前恒为 true）
   $('overlay').classList.add('open');
   document.body.classList.add('locked');
   drawerFocus();
@@ -1146,7 +1158,7 @@ function detailHtml(r) {
   var kv = [
     ['起购金额', esc(r.mb || '—')], ['封闭期', esc(r.tt || '—')],
     ['风险等级', '<span class="' + rkcls(r.rl) + '">' + esc(r.rl || '—') + '</span>'],
-    ['权益类资产上限', r.eq == null ? '未披露' : fmt(r.eq, 2) + '%'],
+    ['权益类资产上限', r.eq == null ? '未披露' : (r.eqi ? '未提及（推断）' : fmt(r.eq, 2) + '%')],
     ['申购开始', esc(r.bs || '—')], ['申购结束', esc(r.be || '—')],
     ['发行机构', esc(r.issuer || '—')], ['登记编码', esc(r.reg || '—')],
     ['万元收益（近1月）', fmt(r.w1, 4) + ' <span class="yn">元/天</span>'],
@@ -1189,6 +1201,7 @@ function openDetail(code) {
   $('drawerBody').innerHTML = detailHtml(r);
   $('drawerBody').scrollTop = 0;
   $('drawer').classList.add('open');
+  $('drawer').setAttribute('aria-hidden', 'false');   // 2026-10-01 P2：打开时必须翻转（此前恒为 true）
   $('overlay').classList.add('open');
   document.body.classList.add('locked');
   drawerFocus();
@@ -1196,6 +1209,7 @@ function openDetail(code) {
 function closeDetail() {
   sheetKind = null;
   $('drawer').classList.remove('open');
+  $('drawer').setAttribute('aria-hidden', 'true');
   $('overlay').classList.remove('open');
   document.body.classList.remove('locked');
   $('drawer').style.transform = '';
@@ -1295,7 +1309,8 @@ function showDetailPage(r) {
   window.scrollTo(0, 0);   // 进入详情从顶部展示：沿用列表滚动位置会直接落在详情中部/底部（2026-09-13 用户反馈）
   var h = histOf(r.code);
   var chPts = (r.ch || []).map(function (x) { return { l: x[0], v: x[1] }; });
-  var snapPts = ((DATA.arch && DATA.arch[r.code]) || []).filter(function (p) { return typeof p[1] === 'number'; })
+  /* P0-4：arch 是按原始 prd_code 建的（无 bank 信息）→ 必须用 r.pc 查，不能用 uid */
+  var snapPts = ((DATA.arch && DATA.arch[r.pc]) || []).filter(function (p) { return typeof p[1] === 'number'; })
     .map(function (p) { return { l: p[0], v: p[1] }; })
     .concat(h.filter(function (x) { return typeof x[1] === 'number'; }).map(function (x) { return { l: DATA.days[x[0]].date, v: x[1] }; }));
   if (snapPts.length > 120) { var stp = Math.ceil(snapPts.length / 120); snapPts = snapPts.filter(function (p, i) { return i % stp === 0 || i === snapPts.length - 1; }); }
@@ -1318,7 +1333,7 @@ function showDetailPage(r) {
   var kv = [
     ['起购金额', esc(r.mb || '—')], ['封闭期', esc(r.tt || '—')],
     ['风险等级', '<span class="' + rkcls(r.rl) + '">' + esc(r.rl || '—') + '</span>'],
-    ['权益类资产上限', r.eq == null ? '未披露' : fmt(r.eq, 2) + '%'],
+    ['权益类资产上限', r.eq == null ? '未披露' : (r.eqi ? '未提及（推断）' : fmt(r.eq, 2) + '%')],
     ['申购开始', esc(r.bs || '—')], ['申购结束', esc(r.be || '—')],
     ['发行机构', esc(r.issuer || '—')], ['登记编码', esc(r.reg || '—')],
     ['万元收益（近1月）', fmt(r.w1, 4) + ' <span class="yn">元/天</span>'],
@@ -1360,18 +1375,20 @@ function showDetailPage(r) {
     + '</div>'
     + '<div class="pv-disc">数据来源为各银行公开渠道接口，可能存在延迟或错漏；本页仅供参考，不构成投资建议。理财非存款、产品有风险、投资须谨慎。</div>';
   $('pvBack').addEventListener('click', function () { if (pushed) history.back(); else gotoList(); });
-  pv.addEventListener('click', function (e) {
+}
+window.addEventListener('popstate', route);
+
+/* ---- 事件 ---- */
+function bind() {
+  /* 详情页走势 Tab（2026-10-01 P2）：委托到常驻 #pview，只绑定一次。
+     此前写在 showDetailPage 内，每次进详情都 addEventListener → 监听器累积、一次点击执行 N 次。 */
+  $('pview').addEventListener('click', function (e) {
     var tt = e.target.dataset && e.target.dataset.tt;
     if (!tt) return;
     $('tb-ch').style.display = tt === 'ch' ? '' : 'none';
     $('tb-snap').style.display = tt === 'snap' ? '' : 'none';
     e.target.parentElement.querySelectorAll('.pill').forEach(function (x) { x.classList.toggle('on', x === e.target); });
   });
-}
-window.addEventListener('popstate', route);
-
-/* ---- 事件 ---- */
-function bind() {
   $('tabs').addEventListener('click', function (e) {
     var c = e.target.dataset && e.target.dataset.c;
     if (c) { S.cat = c; renderAll(); }
@@ -1458,19 +1475,40 @@ function bind() {
     var icsBtn = e.target.closest('[data-ics]');
     if (icsBtn) {
       var rr = findRow(icsBtn.dataset.ics); if (!rr) return;
-      var dt = rr.bs.replace(/-/g, '');
+      /* 2026-10-01 修复 P1-3b（docs/16）：DTEND 原先用 toISOString()（UTC）—— 本地次日 0 点在
+         UTC+8 下回退到前一天，日历事件少一天；改为按**本地** Y/M/D 手工格式化。
+         ICS 文本字段按 RFC 5545 转义（反斜杠 / 分号 / 逗号 / 换行）并折行；文件名过滤非法字符。
+         ⚠ 本段处于模板字符串内：反斜杠必须写双份，生成物中才是单反斜杠。 */
+      function pad2(n) { return (n < 10 ? '0' : '') + n; }
+      function icsDate(d) { return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()); }
+      function icsEsc(s) {
+        return String(s == null ? '' : s)
+          .replace(/[\r\n]+/g, '\\n')         // 换行 → RFC 5545 的 \n 转义
+          .replace(/([\\;,])/g, '\\$1');       // 反斜杠 / 分号 / 逗号 必须转义
+      }
+      function icsFold(line) {                   // RFC 5545 §3.1：超 75 字节折行（续行以空格开头）
+        var s = String(line), out = '', cur = '', n = 0;
+        for (var i = 0; i < s.length; i++) {
+          var ch = s.charAt(i), b = ch.charCodeAt(0) < 0x80 ? 1 : (ch.charCodeAt(0) < 0x800 ? 2 : 3);
+          if (n + b > 73) { out += cur + '\r\n '; cur = ''; n = 0; }
+          cur += ch; n += b;
+        }
+        return out + cur;
+      }
       var dd = new Date(rr.bs + 'T00:00:00'); dd.setDate(dd.getDate() + 1);
+      var dispCode = rr.cd && rr.cd !== '—' ? rr.cd : '';
       var icsDoc = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MMGT//CN', 'BEGIN:VEVENT',
-        'UID:' + rr.code + '@mmgt',
+        'UID:' + icsEsc(rr.code) + '@mmgt',
         'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
-        'DTSTART;VALUE=DATE:' + dt, 'DTEND;VALUE=DATE:' + dd.toISOString().slice(0, 10).replace(/-/g, ''),
-        'SUMMARY:理财开售：' + (rr.n || rr.code),
-        'DESCRIPTION:代码 ' + rr.code + ' · ' + (rr.b || '') + (lwOf(rr) ? ' · ' + lwOf(rr) : ''),
-        'END:VEVENT', 'END:VCALENDAR'].join('\r\n');   // 注意：处于模板字符串内，须双反斜杠，否则产物中出现真实 CRLF 拆断字符串
+        'DTSTART;VALUE=DATE:' + icsDate(new Date(rr.bs + 'T00:00:00')),
+        'DTEND;VALUE=DATE:' + icsDate(dd),
+        'SUMMARY:' + icsEsc('理财开售：' + (rr.n || rr.code)),
+        'DESCRIPTION:' + icsEsc('代码 ' + dispCode + ' · ' + (rr.b || '') + (lwOf(rr) ? ' · ' + lwOf(rr) : '')),
+        'END:VEVENT', 'END:VCALENDAR'].map(icsFold).join('\r\n');
       var blob = new Blob([icsDoc], { type: 'text/calendar' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = '理财开售-' + (rr.n || rr.code) + '.ics';
+      a.download = '理财开售-' + String(rr.n || rr.pc || 'product').replace(/[\/\\:*?"<>|]/g, '_').slice(0, 80) + '.ics';
       document.body.appendChild(a); a.click(); a.remove();
       return;
     }
@@ -1626,15 +1664,81 @@ function resetFilters() {
   renderAll();
 }
 
+/* 数据未就绪（2026-10-01 修复 P1-8①）：空库 / data.js 加载失败（含 SW 把 HTML 当 js 返回）时，
+   此前 $('dateline').innerHTML = ... DATA.days[0].date 直接抛错 → 整页白屏无任何提示。
+   现在渲染可读提示并 return；PC 表格与移动卡片容器都写，避免断点下落到隐藏容器。 */
+function showDataError() {
+  var msg = '<div class="empty" style="margin:40px auto;max-width:560px;line-height:2">'
+    + '<b>数据未就绪</b><br>可能是离线、缓存失效，或当日数据尚未生成。<br>'
+    + '<button class="dataRetry">重新加载</button></div>';
+  var lb = $('listbox'), cd = $('cards'), dl = $('dateline');
+  if (lb) lb.innerHTML = msg;
+  if (cd) cd.innerHTML = msg;
+  if (dl) dl.textContent = '数据未就绪';
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.classList && e.target.classList.contains('dataRetry')) location.reload();
+  });
+}
+
+/* 老用户本地数据迁移（2026-10-01 P0-4）：localStorage 的 WATCH/HOLD 存的是旧版键。
+   旧键有两种形态：明文 prd_code（如 132031D），以及邮储取码失败的降级键 'psbc:名称'（含 ':'）。
+   新键 uid = bank:prd_code。规则：键若不是当前任一行的 code，就用 pc 相同的行替换成该行的 code
+   （同 pc 多行取第一条）；找不到匹配的保留原值（产品可能已下架，重新上架时仍能命中）。 */
+function migrateLegacyKeys() {
+  var map = Object.create(null), codes = Object.create(null);
+  DATA.days.forEach(function (d) {
+    d.rows.forEach(function (r) {
+      codes[r.code] = 1;
+      if (!(r.pc in map)) map[r.pc] = r.code;
+    });
+  });
+  var dirty = false;
+  [WATCH, HOLD].forEach(function (arr) {
+    for (var i = 0; i < arr.length; i++) {
+      var k = String(arr[i]);
+      if (codes[k] || !map[k]) continue;
+      arr[i] = map[k];
+      dirty = true;
+    }
+  });
+  if (dirty) {
+    try { localStorage.setItem(WKEY, JSON.stringify(WATCH)); } catch (e) {}
+    try { localStorage.setItem(HKEY, JSON.stringify(HOLD)); } catch (e) {}
+  }
+}
+
+/* 数据池还原（2026-10-01，docs/16 P2「数据体积」）：data.js 把跨天重复的静态字符串抽成了全局池
+   DATA.sw，行内只存下标（-1 = null）。这里在**任何读取之前**一次性还原成原字段 ——
+   其余渲染/检索/详情/对比/关注代码完全不需要知道池的存在（唯一的失败面就是本函数）。 */
+function expandData(D) {
+  var sw = D.sw; if (!sw) return D;                     // 无池（老产物）→ 原样返回
+  function S(i) { return (typeof i === 'number' && i >= 0 && i < sw.length) ? sw[i] : null; }
+  for (var i = 0; i < D.days.length; i++) {
+    var rows = D.days[i].rows;
+    for (var j = 0; j < rows.length; j++) {
+      var r = rows[j];
+      r.d = S(r.d); r.b = S(r.b); r.n = S(r.n); r.cd = S(r.cd);
+      r.code = S(r.code); r.pc = S(r.pc);
+      r.tt = S(r.tt); r.rl = S(r.rl); r.mb = S(r.mb); r.str = S(r.str);
+      r.issuer = S(r.issuer); r.reg = S(r.reg); r.bench = S(r.bench); r.rs = S(r.rs);
+      if (r.perf) for (var k = 0; k < r.perf.length; k++) r.perf[k][0] = S(r.perf[k][0]);
+    }
+  }
+  return D;
+}
+
 /* 启动（2026-09-16 配合 data.js 的 defer）：defer 脚本在 DOMContentLoaded 之前执行完毕，
    所以在这里启动一定能拿到 DATA。若文档已解析完（理论上不会，防御），立即启动。 */
 function boot() {
   if (window.__mmgtBooted) return;
   window.__mmgtBooted = true;
+  applyTheme();
+  if (typeof DATA === 'undefined' || !DATA || !DATA.days || !DATA.days.length) { showDataError(); return; }
+  expandData(DATA);          // 2026-10-01：池下标 → 原字段，必须早于 loadState / migrateLegacyKeys / route
+  migrateLegacyKeys();
   loadState();
   bind();
   renderAll();
-  applyTheme();
   route();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
@@ -1653,12 +1757,18 @@ else boot();
   try { sessionStorage.setItem(KEY, shell + '|' + dataV); } catch (e) {}
   console.warn('[mmgt] 壳/数据版本不一致，正在刷新缓存：', shell, 'vs', dataV);
   var done = function () { location.reload(); };
+  /* 2026-10-01 修复 P2：GitHub Pages 镜像域是**共享 origin**（user.github.io 下还有很多别人的站点），
+     不能按 getRegistrations()/caches.keys() 全量清 —— 只清本站 scope 的 SW 与 mmgt-site- 前缀的缓存。 */
+  var scope = '';
+  try { scope = new URL('./', location.href).href; } catch (e) {}
   if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
     navigator.serviceWorker.getRegistrations().then(function (rs) {
-      return Promise.all(rs.map(function (r) { return r.unregister(); }));
+      return Promise.all(rs.filter(function (r) { return scope && r.scope === scope; })
+        .map(function (r) { return r.unregister(); }));
     }).then(function () {
       return (window.caches && caches.keys) ? caches.keys().then(function (ks) {
-        return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+        return Promise.all(ks.filter(function (k) { return k.indexOf('mmgt-site-') === 0; })
+          .map(function (k) { return caches.delete(k); }));
       }) : null;
     }).then(done).catch(done);
   } else { done(); }
