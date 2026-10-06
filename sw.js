@@ -1,6 +1,6 @@
 // 银行理财日报离线缓存（docs/05 二期）
 // 策略：network-first —— 数据每日更新，在线取最新并写缓存；断网回退缓存（昨日数据）
-var CACHE = 'mmgt-site-v2-2026-10-05-646532';
+var CACHE = 'mmgt-site-v2-2026-10-06-752495';
 var FILES = ['./', './index.html', './daily.html', './data.js', './manifest.webmanifest', './icon.svg'];
 function offline() { return new Response('offline', { status: 504, statusText: 'Gateway Timeout' }); }
 self.addEventListener('install', function (e) {
