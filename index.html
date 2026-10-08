@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <script>try{var tp=localStorage.getItem('mmgt-theme')||'auto';var dk=tp==='dark'||(tp==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=dk?'dark':'light';}catch(e){}</script>
 <!-- 壳构建版本（P1-10）：与 data.js 的 DATA.v 比对，不一致说明 SW 给到了跨版本的壳/数据组合 -->
-<script>window.__MMGT_BUILD__='2026-10-08-239284';</script>
+<script>window.__MMGT_BUILD__='2026-10-08-070498';</script>
 <style>
 /* ===== 简约质感风 v2.0（docs/07）demo 样式层：Apple 基调 + Google M3 语义 + Amazon 清单密度 ===== */
 :root{
@@ -1711,16 +1711,13 @@ function migrateLegacyKeys() {
    DATA.sw，行内只存下标（-1 = null）。这里在**任何读取之前**一次性还原成原字段 ——
    其余渲染/检索/详情/对比/关注代码完全不需要知道池的存在（唯一的失败面就是本函数）。 */
 function expandData(D) {
-  var sw = D.sw; if (!sw) return D;                     // 无池（老产物）→ 原样返回
+  var sw = D.sw; if (!sw) return D;   // 无池：data.js 已自展开（2026-10-08），或老产物 → 原样返回
   function S(i) { return (typeof i === 'number' && i >= 0 && i < sw.length) ? sw[i] : null; }
   for (var i = 0; i < D.days.length; i++) {
     var rows = D.days[i].rows;
     for (var j = 0; j < rows.length; j++) {
       var r = rows[j];
-      r.d = S(r.d); r.b = S(r.b); r.n = S(r.n); r.cd = S(r.cd);
-      r.code = S(r.code); r.pc = S(r.pc);
-      r.tt = S(r.tt); r.rl = S(r.rl); r.mb = S(r.mb); r.str = S(r.str);
-      r.issuer = S(r.issuer); r.reg = S(r.reg); r.bench = S(r.bench); r.rs = S(r.rs);
+      r.d = S(r.d); r.b = S(r.b); r.n = S(r.n); r.cd = S(r.cd); r.code = S(r.code); r.pc = S(r.pc); r.tt = S(r.tt); r.rl = S(r.rl); r.mb = S(r.mb); r.str = S(r.str); r.issuer = S(r.issuer); r.reg = S(r.reg); r.bench = S(r.bench); r.rs = S(r.rs);
       if (r.perf) for (var k = 0; k < r.perf.length; k++) r.perf[k][0] = S(r.perf[k][0]);
     }
   }
@@ -1734,7 +1731,7 @@ function boot() {
   window.__mmgtBooted = true;
   applyTheme();
   if (typeof DATA === 'undefined' || !DATA || !DATA.days || !DATA.days.length) { showDataError(); return; }
-  expandData(DATA);          // 2026-10-01：池下标 → 原字段，必须早于 loadState / migrateLegacyKeys / route
+  expandData(DATA);          // 2026-10-01：池下标 → 原字段；data.js 已自展开（2026-10-08），这里是反向兜底
   migrateLegacyKeys();
   loadState();
   bind();
@@ -1745,7 +1742,10 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else boot();
 /* 版本协商（2026-09-16 P1-10）：SW 对 index.html 用 stale-while-revalidate、对 data.js 用
    network-first，跨版本一拍会拿到「旧壳 + 新数据」→ 结构不兼容即白屏，且会一直持续。
-   这里在渲染前先比对：不一致就注销 SW、清空全部缓存，并只强制重载一次（防循环）。 */
+   这里在渲染前先比对：不一致就注销 SW、清空全部缓存，并只强制重载一次（防循环）。
+   ⚠ 2026-10-08：池化字段错配（文字被渲染成下标数字）已由 **data.js 自展开**根治；本守卫现在只对
+   「结构性不兼容」兜底。它同一会话只重载一次，若那次仍拿到缓存里的旧壳就会一直显示坏页面 ——
+   别把兼容性寄托在它身上（docs/11 C15）。 */
 (function versionGuard() {
   var shell = window.__MMGT_BUILD__ || 'dev';
   var dataV = (typeof DATA !== 'undefined' && DATA && DATA.v) ? DATA.v : 'dev';
