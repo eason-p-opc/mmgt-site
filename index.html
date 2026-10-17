@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <script>try{var tp=localStorage.getItem('mmgt-theme')||'auto';var dk=tp==='dark'||(tp==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=dk?'dark':'light';}catch(e){}</script>
 <!-- 壳构建版本（P1-10）：与 data.js 的 DATA.v 比对，不一致说明 SW 给到了跨版本的壳/数据组合 -->
-<script>window.__MMGT_BUILD__='2026-10-17-837535';</script>
+<script>window.__MMGT_BUILD__='2026-10-17-604344';</script>
 <style>
 /* ===== 简约质感风 v2.0（docs/07）demo 样式层：Apple 基调 + Google M3 语义 + Amazon 清单密度 ===== */
 :root{
@@ -325,8 +325,16 @@ body.pv .wrap{display:none}
 .tsvg .ln{stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .tsvg .dot{fill:var(--accent);stroke:var(--card);stroke-width:2}
 .tsvg .tick{fill:var(--ink3)}
-.tsvg .pvl{fill:var(--ink);font-weight:600}
-[data-theme="dark"] .tsvg .pvl{fill:var(--ink)}
+/* 2026-10-17：收益率数值默认不展示 → 指针交互时显示（竖线 + 高亮点 + 气泡标签） */
+.tsvg .hit{cursor:crosshair;touch-action:pan-y}
+.tsvg .tip .tipl{stroke:var(--ink3);stroke-width:1;stroke-dasharray:3 3;opacity:.55}
+.tsvg .tip .tipd{fill:var(--accent);stroke:var(--card);stroke-width:2}
+.tsvg .tip .tipbg{fill:var(--card);stroke:var(--line)}
+.tsvg .tip .tipt{fill:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+/* ---- 采集历史分页（2026-10-17 用户反馈「列表太长」）---- */
+.hxfoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px;color:var(--ink3)}
+.hxfoot .hxbtn{border:none;background:var(--fill);color:var(--ink);border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer;margin-left:6px}
+.hxfoot .hxbtn:disabled{opacity:.45;cursor:default}
 body{transition:background var(--dur-2),color var(--dur-2)}
 /* ---- 三层降级链 ---- */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
@@ -1217,7 +1225,31 @@ function closeDetail() {
 }
 
 /* ---- 产品详情页路由（?p=<code>，二期 2a）---- */
-var pushed = false, listScroll = 0;
+var pushed = false, listScroll = 0, tipPinned = false;
+
+/* ---- 本站采集历史分页（2026-10-17）：数据攒到 20+ 天，整表铺开会把详情页拉得很长 ----
+   只渲染当前页；页大小与状态放模块级（详情页每次重绘 innerHTML，翻页不能整页重进）。 */
+var HIST_PAGE = 10;
+var curHist = [], curHp = 0;
+function histRowHtml(x) {
+  return '<tr><td>' + DATA.days[x[0]].date + '</td><td class="num ' + ycls(x[1]) + '">' + fmt(x[1], 2) + '</td><td class="num">'
+    + (typeof x[2] === 'number' ? x[2].toFixed(1) : '暂无') + '</td></tr>';
+}
+function renderHistPage(p) {
+  var pages = Math.max(1, Math.ceil(curHist.length / HIST_PAGE));
+  curHp = Math.max(0, Math.min(pages - 1, p));
+  var body = $('hxBody'), foot = $('hxFoot'), info = $('hxInfo');
+  if (!body) return;                       // 已离开详情页（异步/旧引用）
+  var slice = curHist.slice(curHp * HIST_PAGE, curHp * HIST_PAGE + HIST_PAGE);
+  body.innerHTML = slice.length ? slice.map(histRowHtml).join('') : '<tr><td colspan="3">—</td></tr>';
+  if (info) info.textContent = '第 ' + (curHp + 1) + ' / ' + pages + ' 页 · 共 ' + curHist.length + ' 次采集';
+  if (foot) {
+    foot.style.display = curHist.length > HIST_PAGE ? '' : 'none';
+    foot.querySelectorAll('.hxbtn').forEach(function (b) {
+      b.disabled = (+b.dataset.hp < 0) ? curHp === 0 : curHp >= pages - 1;
+    });
+  }
+}
 function histOf(code) { return (DATA.hist[code] || []).slice().reverse(); }   // 转为时间升序
 function gotoDetail(code) {
   closeDetail();
@@ -1283,24 +1315,61 @@ function trendSvg(pts) {
   var defs = '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">'
     + '<stop offset="0" style="stop-color:var(--accent);stop-opacity:.22"/>'
     + '<stop offset="1" style="stop-color:var(--accent);stop-opacity:0"/></linearGradient></defs>';
-  /* 三条水平基准线（max/中位/min）+ 刻度值 */
+  /* 三条水平基准线（max/中位/min）—— 2026-10-17 起**不标数值**：
+     收益率默认不展示，改为指针交互时临时显示（moveTip） */
   var ticks = '';
-  [[max, pt], [(min + max) / 2, (pt + (H - pb)) / 2], [min, H - pb]].forEach(function (t) {
-    ticks += '<line class="gline" x1="' + pl + '" y1="' + t[1].toFixed(1) + '" x2="' + (W - pr) + '" y2="' + t[1].toFixed(1) + '"/>'
-      + '<text class="tick" x="' + (pl - 7) + '" y="' + (t[1] + 3.5).toFixed(1) + '" text-anchor="end" font-size="10.5">' + t[0].toFixed(2) + '</text>';
+  [pt, (pt + (H - pb)) / 2, H - pb].forEach(function (y) {
+    ticks += '<line class="gline" x1="' + pl + '" y1="' + y.toFixed(1) + '" x2="' + (W - pr) + '" y2="' + y.toFixed(1) + '"/>';
   });
-  /* 每点：白环圆点 + 数值标注 + 日期（点 ≤8 个时全标，>8 个标首尾） */
-  var ann = pts.map(function (x, i) {
+  /* 每点只画白环圆点；日期仍标注（日期不是收益率，保留：≤8 点全标，否则首尾） */
+  var dots = pts.map(function (x, i) {
     var showDate = pts.length <= 8 || i === 0 || i === pts.length - 1;
     return '<circle class="dot" cx="' + X(i).toFixed(1) + '" cy="' + Y(x.v).toFixed(1) + '" r="3.5"><title>'
       + esc(x.l) + ' · ' + x.v.toFixed(2) + '%</title></circle>'
-      + '<text class="pvl" x="' + X(i).toFixed(1) + '" y="' + (Y(x.v) - 10).toFixed(1) + '" text-anchor="middle" font-size="10.5">' + x.v.toFixed(2) + '%</text>'
       + (showDate ? '<text class="tick" x="' + X(i).toFixed(1) + '" y="' + (H - pb + 16) + '" text-anchor="middle" font-size="10">' + esc(x.l.slice(5)) + '</text>' : '');
   }).join('');
-  return '<svg class="tsvg" viewBox="0 0 ' + W + ' ' + H + '">' + defs + ticks
+  /* 交互层（默认隐藏）；几何经 data-* 交给事件委派，避免在 JS 里重算比例尺 */
+  var tip = '<g class="tip" style="display:none">'
+    + '<line class="tipl" y1="' + pt + '" y2="' + (H - pb) + '"/>'
+    + '<circle class="tipd" r="4.5"/>'
+    + '<rect class="tipbg" width="96" height="20" rx="7" ry="7"/>'
+    + '<text class="tipt" font-size="11" text-anchor="middle"></text></g>';
+  var meta = JSON.stringify(pts.map(function (x) { return [x.l, x.v]; })).replace(/'/g, '&#39;');
+  return '<svg class="tsvg" viewBox="0 0 ' + W + ' ' + H + '" data-w="' + W + '" data-pl="' + pl + '" data-pr="' + pr + '" data-pts=\'' + meta + '\'>'
+    + defs + ticks
     + '<path class="area" d="' + area + '" fill="url(#' + gid + ')"/>'
     + '<path class="ln" d="' + line + '" fill="none"/>'
-    + ann + '</svg>';
+    + dots + tip
+    + '<rect class="hit" x="' + pl + '" y="0" width="' + (W - pl - pr) + '" height="' + H + '" fill="transparent"/>'
+    + '</svg>';
+}
+
+/* 走势图指针交互（2026-10-17）：悬停/滑动/点击 → 在最近点显示「日期 · 值%」标签。
+   单击钉住，换点移动，切 Tab 或换产品则隐藏。 */
+function trendSvgOf(e) { return e.target && e.target.closest ? e.target.closest('svg.tsvg') : null; }
+function moveTip(svg, clientX) {
+  var box = svg.getBoundingClientRect();
+  var W = +svg.getAttribute('data-w') || 640, pl = +svg.getAttribute('data-pl') || 46, pr = +svg.getAttribute('data-pr') || 20;
+  var pts = [];
+  try { pts = JSON.parse(svg.getAttribute('data-pts') || '[]'); } catch (err) { return; }
+  if (!pts.length) return;
+  var xv = (clientX - box.left) / (box.width || 1) * W;
+  var step = pts.length > 1 ? (W - pl - pr) / (pts.length - 1) : 0;
+  var i = step ? Math.round((xv - pl) / step) : 0;
+  i = Math.max(0, Math.min(pts.length - 1, i));
+  var dot = svg.querySelectorAll('circle.dot')[i], g = svg.querySelector('g.tip');
+  if (!dot || !g) return;
+  var cx = +dot.getAttribute('cx'), cy = +dot.getAttribute('cy');
+  var lab = String(pts[i][0]);
+  if (/^\d{4}-\d{2}-\d{2}/.test(lab)) lab = lab.slice(5);
+  var bw = 96, bx = Math.max(pl, Math.min(W - pr - bw, cx - bw / 2));
+  var by = cy - 32; if (by < 2) by = cy + 10;          // 贴着顶部时翻到点下方
+  g.style.display = '';
+  var ln = g.querySelector('.tipl'); ln.setAttribute('x1', cx); ln.setAttribute('x2', cx);
+  var d2 = g.querySelector('.tipd'); d2.setAttribute('cx', cx); d2.setAttribute('cy', cy);
+  var bg = g.querySelector('.tipbg'); bg.setAttribute('x', bx); bg.setAttribute('y', by);
+  var t = g.querySelector('.tipt'); t.setAttribute('x', bx + bw / 2); t.setAttribute('y', by + 14.5);
+  t.textContent = lab + ' · ' + Number(pts[i][1]).toFixed(2) + '%';
 }
 function showDetailPage(r) {
   listScroll = window.scrollY;
@@ -1326,10 +1395,9 @@ function showDetailPage(r) {
     + '<div id="tb-snap" style="' + (defTab === 'snap' ? '' : 'display:none') + '">'
       + (hasSnap ? trendSvg(snapPts) : (hasCh ? '' : '<div class="empty" style="padding:20px">暂无数据（新发产品）</div>')) + '</div>';
   var trend = trendTabs + trendBox;
-  var histRows = h.slice().reverse().map(function (x) {
-    return '<tr><td>' + DATA.days[x[0]].date + '</td><td class="num ' + ycls(x[1]) + '">' + fmt(x[1], 2) + '</td><td class="num">'
-      + (typeof x[2] === 'number' ? x[2].toFixed(1) : '暂无') + '</td></tr>';
-  }).join('');
+  /* 采集历史分页（2026-10-17 用户反馈「数据太多、列表很长」）：倒序（最新在前），每页 HIST_PAGE 条 */
+  curHist = h.slice().reverse();
+  curHp = 0;
   var kv = [
     ['起购金额', esc(r.mb || '—')], ['封闭期', esc(r.tt || '—')],
     ['风险等级', '<span class="' + rkcls(r.rl) + '">' + esc(r.rl || '—') + '</span>'],
@@ -1365,8 +1433,9 @@ function showDetailPage(r) {
     + (hasSnap || !hasCh ? '「本站快照年化」随每日采集自动积累（当前已采集 ' + DATA.days.length + ' 天）。' : '')
     + '源站不提供单位净值序列，故无净值曲线。</p>'
     + perf
-    + '<div class="d-sec">本站采集历史</div><table class="hx"><thead><tr><th>采集日期</th><th class="num">近1月年化%</th><th class="num">评分</th></tr></thead><tbody>'
-    + (histRows || '<tr><td colspan="3">—</td></tr>') + '</tbody></table>'
+    + '<div class="d-sec">本站采集历史</div><table class="hx"><thead><tr><th>采集日期</th><th class="num">近1月年化%</th><th class="num">评分</th></tr></thead><tbody id="hxBody"></tbody></table>'
+    + '<div class="hxfoot" id="hxFoot" style="display:none"><span id="hxInfo"></span><span>'
+    + '<button class="hxbtn" data-hp="-1">上一页</button><button class="hxbtn" data-hp="1">下一页</button></span></div>'
     + '<div class="d-grid" style="margin-top:14px">' + kv.map(function (x) { return '<div><div class="k">' + x[0] + '</div><div class="v">' + x[1] + '</div></div>'; }).join('') + '</div>'
     + (r.c !== 'onsale' && r.rs ? '<div class="d-sec">募集说明</div><div class="d-reason">' + esc(r.rs) + '</div>' : '')
     + '<div class="d-btns">'
@@ -1374,6 +1443,8 @@ function showDetailPage(r) {
     + (laOf(r) && laOf(r) !== lwOf(r) ? '<a class="ghost" style="text-align:center;padding:10px 0;border-radius:9px;font-weight:600" href="' + esc(laOf(r)) + '" target="_blank" rel="noopener">App 端购买</a>' : '')
     + '</div>'
     + '<div class="pv-disc">数据来源为各银行公开渠道接口，可能存在延迟或错漏；本页仅供参考，不构成投资建议。理财非存款、产品有风险、投资须谨慎。</div>';
+  renderHistPage(0);           // 采集历史首屏只渲染一页，其余按需翻页
+  tipPinned = false;           // 换产品 = 收起上一张图钉住的标签
   $('pvBack').addEventListener('click', function () { if (pushed) history.back(); else gotoList(); });
 }
 window.addEventListener('popstate', route);
@@ -1383,11 +1454,29 @@ function bind() {
   /* 详情页走势 Tab（2026-10-01 P2）：委托到常驻 #pview，只绑定一次。
      此前写在 showDetailPage 内，每次进详情都 addEventListener → 监听器累积、一次点击执行 N 次。 */
   $('pview').addEventListener('click', function (e) {
+    var hp = e.target.dataset && e.target.dataset.hp;
+    if (hp) { renderHistPage(curHp + Number(hp)); return; }   // 采集历史翻页
     var tt = e.target.dataset && e.target.dataset.tt;
     if (!tt) return;
     $('tb-ch').style.display = tt === 'ch' ? '' : 'none';
     $('tb-snap').style.display = tt === 'snap' ? '' : 'none';
+    $('pview').querySelectorAll('g.tip').forEach(function (g) { g.style.display = 'none'; });   // 切 Tab 收起标签
+    tipPinned = false;
     e.target.parentElement.querySelectorAll('.pill').forEach(function (x) { x.classList.toggle('on', x === e.target); });
+  });
+  /* 走势图指针交互（2026-10-17）：悬停/滑动即显示最近点的标签；按下钉住；离开未钉住则收起 */
+  $('pview').addEventListener('pointerdown', function (e) {
+    var svg = trendSvgOf(e); if (!svg) return;
+    tipPinned = true; moveTip(svg, e.clientX);
+  });
+  $('pview').addEventListener('pointermove', function (e) {
+    var svg = trendSvgOf(e); if (!svg) return;
+    if (tipPinned || e.pointerType === 'mouse' || e.buttons) moveTip(svg, e.clientX);
+  });
+  $('pview').addEventListener('pointerout', function (e) {
+    var svg = trendSvgOf(e); if (!svg || tipPinned) return;
+    if (e.relatedTarget && svg.contains(e.relatedTarget)) return;
+    var g = svg.querySelector('g.tip'); if (g) g.style.display = 'none';
   });
   $('tabs').addEventListener('click', function (e) {
     var c = e.target.dataset && e.target.dataset.c;
